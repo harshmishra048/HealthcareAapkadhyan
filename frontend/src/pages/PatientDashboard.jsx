@@ -18,13 +18,22 @@ import {
   CalendarDays,
 } from "lucide-react";
 import API from "../api/axios";
+import { isFeatureEnabled } from "../config/features";
 
 const PatientDashboard = () => {
+  const appointmentsEnabled = isFeatureEnabled("doctors");
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(appointmentsEnabled);
   const [error, setError] = useState("");
 
   const fetchDashboardData = async () => {
+    if (!appointmentsEnabled) {
+      setAppointments([]);
+      setError("");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -40,9 +49,38 @@ const PatientDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [appointmentsEnabled]);
 
   const stats = useMemo(() => {
+    if (!appointmentsEnabled) {
+      return [
+        {
+          title: "Medical Reports",
+          value: 0,
+          icon: FileText,
+          desc: "Secure report access",
+        },
+        {
+          title: "Medicine Requests",
+          value: 0,
+          icon: HeartPulse,
+          desc: "Pharmacy support",
+        },
+        {
+          title: "Health Profile",
+          value: 1,
+          icon: Activity,
+          desc: "Your patient details",
+        },
+        {
+          title: "Account Security",
+          value: "On",
+          icon: Hospital,
+          desc: "Protected access",
+        },
+      ];
+    }
+
     const upcomingAppointments = appointments.filter((item) =>
       ["pending", "accepted"].includes(item.status),
     );
@@ -81,7 +119,7 @@ const PatientDashboard = () => {
         desc: "All appointment records",
       },
     ];
-  }, [appointments]);
+  }, [appointments, appointmentsEnabled]);
 
   const recentAppointments = appointments.slice(0, 5);
 
@@ -114,8 +152,8 @@ const PatientDashboard = () => {
             </h2>
 
             <p className="mt-3 text-cyan-50">
-              Track appointments, doctor responses, reports, hospitals, and
-              emergency support from one secure dashboard.
+              Track your reports, medicine requests, profile details, and
+              secure healthcare activity from one dashboard.
             </p>
           </div>
 
@@ -168,54 +206,56 @@ const PatientDashboard = () => {
             })}
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
-              <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <div className="flex items-center gap-3">
-                  <Activity className="text-cyan-600" />
+          {appointmentsEnabled && (
+            <section className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
+                <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-3">
+                    <Activity className="text-cyan-600" />
+                    <h3 className="text-xl font-bold text-slate-900">
+                      Recent Appointment Activity
+                    </h3>
+                  </div>
+
+                  <Link
+                    to="/patient-dashboard/appointments"
+                    className="rounded-full bg-cyan-50 px-4 py-2 text-xs font-black text-cyan-700 transition hover:bg-cyan-100"
+                  >
+                    View All
+                  </Link>
+                </div>
+
+                {recentAppointments.length === 0 ? (
+                  <EmptyState text="No appointment activity found yet." />
+                ) : (
+                  <div className="space-y-4">
+                    {recentAppointments.map((item) => (
+                      <AppointmentActivity key={item._id} appointment={item} />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
+                <div className="mb-5 flex items-center gap-3">
+                  <Clock className="text-emerald-600" />
                   <h3 className="text-xl font-bold text-slate-900">
-                    Recent Appointment Activity
+                    Today&apos;s Schedule
                   </h3>
                 </div>
 
-                <Link
-                  to="/patient-dashboard/appointments"
-                  className="rounded-full bg-cyan-50 px-4 py-2 text-xs font-black text-cyan-700 transition hover:bg-cyan-100"
-                >
-                  View All
-                </Link>
+                {todaySchedule.length === 0 ? (
+                  <EmptyState text="No appointment scheduled for today." />
+                ) : (
+                  <div className="space-y-4">
+                    {todaySchedule.map((item) => (
+                      <TodayScheduleItem key={item._id} appointment={item} />
+                    ))}
+                  </div>
+                )}
               </div>
-
-              {recentAppointments.length === 0 ? (
-                <EmptyState text="No appointment activity found yet." />
-              ) : (
-                <div className="space-y-4">
-                  {recentAppointments.map((item) => (
-                    <AppointmentActivity key={item._id} appointment={item} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
-              <div className="mb-5 flex items-center gap-3">
-                <Clock className="text-emerald-600" />
-                <h3 className="text-xl font-bold text-slate-900">
-                  Today&apos;s Schedule
-                </h3>
-              </div>
-
-              {todaySchedule.length === 0 ? (
-                <EmptyState text="No appointment scheduled for today." />
-              ) : (
-                <div className="space-y-4">
-                  {todaySchedule.map((item) => (
-                    <TodayScheduleItem key={item._id} appointment={item} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+            </section>
+          )}
 
           <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
             <div className="mb-5 flex items-center gap-3">
@@ -226,11 +266,15 @@ const PatientDashboard = () => {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <QuickAction to="/doctors" label="Find Doctors" />
-              <QuickAction
-                to="/patient-dashboard/appointments"
-                label="My Appointments"
-              />
+              {appointmentsEnabled && (
+                <QuickAction to="/doctors" label="Find Doctors" />
+              )}
+              {appointmentsEnabled && (
+                <QuickAction
+                  to="/patient-dashboard/appointments"
+                  label="My Appointments"
+                />
+              )}
               <QuickAction to="/patient-dashboard/reports" label="My Reports" />
               <QuickAction
                 to="/patient-dashboard/profile"

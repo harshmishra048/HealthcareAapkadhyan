@@ -18,6 +18,7 @@ const {
   welcomeEmail,
   resetPasswordEmail,
 } = require("../utils/emailTemplates");
+const { isRoleEnabled } = require("../config/features");
 
 const approvalRequiredRoles = ["doctor", "hospitalAdmin", "medicalOwner"];
 const allowedRegistrationRoles = ["patient", ...approvalRequiredRoles];
@@ -45,7 +46,17 @@ const buildUserPayload = (user) => ({
   isApproved: user.isApproved,
 });
 
+const sendDisabledRoleResponse = (res) =>
+  res.status(403).json({
+    success: false,
+    message: "This account type is currently unavailable",
+  });
+
 const sendTokenResponse = async (user, res, message) => {
+  if (!isRoleEnabled(user.role)) {
+    return sendDisabledRoleResponse(res);
+  }
+
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
 
@@ -116,6 +127,11 @@ exports.register = asyncHandler(async (req, res) => {
   }
 
   const selectedRole = role || "patient";
+
+  if (!isRoleEnabled(selectedRole)) {
+    return sendDisabledRoleResponse(res);
+  }
+
   const verificationToken = createVerificationToken();
 
   const user = await User.create({
@@ -235,6 +251,10 @@ exports.googleAuth = asyncHandler(async (req, res) => {
 
   const selectedRole =
     role && allowedRegistrationRoles.includes(role) ? role : "patient";
+
+  if (!isRoleEnabled(selectedRole)) {
+    return sendDisabledRoleResponse(res);
+  }
 
   const ticket = await googleClient.verifyIdToken({
     idToken: credential,
@@ -375,6 +395,10 @@ exports.refreshToken = asyncHandler(async (req, res) => {
     });
   }
 
+  if (!isRoleEnabled(user.role)) {
+    return sendDisabledRoleResponse(res);
+  }
+
   const accessToken = generateAccessToken(user);
 
   res.status(200).json({
@@ -405,6 +429,10 @@ exports.logout = asyncHandler(async (req, res) => {
 });
 
 exports.me = asyncHandler(async (req, res) => {
+  if (!isRoleEnabled(req.user.role)) {
+    return sendDisabledRoleResponse(res);
+  }
+
   res.status(200).json({
     success: true,
     user: buildUserPayload(req.user),

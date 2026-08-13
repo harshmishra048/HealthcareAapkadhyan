@@ -4,10 +4,11 @@ import { HeartPulse, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../constants/brand";
 import GoogleAuthButton from "../components/common/GoogleAuthButton";
+import { getDashboardPath, isFeatureEnabled } from "../config/features";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, logout } = useAuth();
 
   const [formData, setFormData] = useState({
     emailOrPhone: "",
@@ -18,33 +19,18 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const loginHighlights = [
+    "Protected medical records",
+    "Role-based dashboard",
+    isFeatureEnabled("doctors") && "Fast appointment access",
+    "Secure refresh login",
+  ].filter(Boolean);
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
-  };
-
-  const getDashboardPath = (role) => {
-    switch (role) {
-      case "patient":
-        return "/patient-dashboard";
-
-      case "doctor":
-        return "/doctor-dashboard";
-
-      case "hospitalAdmin":
-        return "/hospital-dashboard";
-
-      case "medicalOwner":
-        return "/medical-dashboard";
-
-      case "superAdmin":
-        return "/super-admin-dashboard";
-
-      default:
-        return "/";
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -74,7 +60,8 @@ const Login = () => {
       const dashboardPath = getDashboardPath(user.role);
 
       if (dashboardPath === "/") {
-        setError(`No dashboard route found for role: ${user.role}`);
+        await logout();
+        setError("This account type is currently unavailable.");
         return;
       }
 
@@ -94,7 +81,15 @@ const Login = () => {
     try {
       setLoading(true);
       const user = await googleLogin({ credential });
-      navigate(getDashboardPath(user.role), { replace: true });
+      const dashboardPath = getDashboardPath(user.role);
+
+      if (dashboardPath === "/") {
+        await logout();
+        setError("This account type is currently unavailable.");
+        return;
+      }
+
+      navigate(dashboardPath, { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message || "Google login failed. Please try again.",
@@ -124,18 +119,12 @@ const Login = () => {
           </h1>
 
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-            Login securely to manage appointments, reports, doctors, hospitals,
-            medical stores, and emergency healthcare access from one trusted
-            platform.
+            Login securely to manage reports, medicine requests, medical stores,
+            and your trusted healthcare account from one platform.
           </p>
 
           <div className="mt-8 grid max-w-xl gap-4 sm:grid-cols-2">
-            {[
-              "Protected medical records",
-              "Role-based dashboard",
-              "Fast appointment access",
-              "Secure refresh login",
-            ].map((item) => (
+            {loginHighlights.map((item) => (
               <div
                 key={item}
                 className="rounded-2xl border border-white/70 bg-white/70 p-4 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur"

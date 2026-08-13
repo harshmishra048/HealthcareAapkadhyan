@@ -14,6 +14,7 @@ const {
 const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
 const { authLimiter } = require("../middleware/rateLimiter");
+const { requireFeature } = require("../middleware/featureFlagMiddleware");
 
 const router = express.Router();
 
@@ -37,12 +38,17 @@ router.get(
   (req, res) => res.json({ message: "Patient dashboard access" }),
 );
 
-router.get("/doctor-dashboard", protect, authorizeRoles("doctor"), (req, res) =>
-  res.json({ message: "Doctor dashboard access" }),
+router.get(
+  "/doctor-dashboard",
+  requireFeature("doctors", "Doctors"),
+  protect,
+  authorizeRoles("doctor"),
+  (req, res) => res.json({ message: "Doctor dashboard access" }),
 );
 
 router.get(
   "/hospital-admin-dashboard",
+  requireFeature("hospitals", "Hospitals"),
   protect,
   authorizeRoles("hospitalAdmin"),
   (req, res) => res.json({ message: "Hospital admin dashboard access" }),

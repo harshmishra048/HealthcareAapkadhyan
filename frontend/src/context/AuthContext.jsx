@@ -1,15 +1,54 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import API from "../api/axios";
+import { isRoleEnabled } from "../config/features";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
+
+    if (!savedUser) return null;
+
+    const parsedUser = JSON.parse(savedUser);
+
+    if (!isRoleEnabled(parsedUser?.role)) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      return null;
+    }
+
+    return parsedUser;
   });
 
   const [loading, setLoading] = useState(true);
+
+  const createDisabledAccountError = () => {
+    const error = new Error("This account type is currently unavailable.");
+    error.response = {
+      data: {
+        message: "This account type is currently unavailable.",
+      },
+    };
+
+    return error;
+  };
+
+  const storeAuthenticatedUser = (authData) => {
+    if (!isRoleEnabled(authData.user?.role)) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      setUser(null);
+      throw createDisabledAccountError();
+    }
+
+    localStorage.setItem("accessToken", authData.accessToken);
+    localStorage.setItem("user", JSON.stringify(authData.user));
+
+    setUser(authData.user);
+
+    return authData.user;
+  };
 
   const login = async (emailOrPhone, password) => {
     const res = await API.post("/auth/login", {
@@ -17,12 +56,7 @@ export const AuthProvider = ({ children }) => {
       password,
     });
 
-    localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-
-    setUser(res.data.user);
-
-    return res.data.user;
+    return storeAuthenticatedUser(res.data);
   };
 
   const register = async (payload) => {
@@ -36,12 +70,7 @@ export const AuthProvider = ({ children }) => {
       role,
     });
 
-    localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-
-    setUser(res.data.user);
-
-    return res.data.user;
+    return storeAuthenticatedUser(res.data);
   };
 
   const forgotPassword = async (email) => {
@@ -75,9 +104,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("accessToken", refreshRes.data.accessToken);
 
         if (refreshRes.data.user) {
-          localStorage.setItem("user", JSON.stringify(refreshRes.data.user));
-          setUser(refreshRes.data.user);
-          return refreshRes.data.user;
+          return storeAuthenticatedUser(refreshRes.data);
         }
       } catch (error) {
         localStorage.removeItem("accessToken");
@@ -90,9 +117,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await API.get("/auth/me");
 
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      setUser(res.data.user);
-      return res.data.user;
+      return storeAuthenticatedUser({
+        accessToken: token,
+        user: res.data.user,
+      });
     } catch (error) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");

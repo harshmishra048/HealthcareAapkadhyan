@@ -58,8 +58,13 @@ import MedicalStoreAnalytics from "../pages/superAdmin/MedicalStoreAnalytics";
 import MedicineRequests from "../pages/medical/MedicineRequests";
 import StorePreview from "../pages/medical/StorePreview";
 import PatientMedicineRequests from "../pages/patient/PatientMedicineRequests";
+import { filterEnabledRoles, isFeatureEnabled } from "../config/features";
 
 const AppRoutes = () => {
+  const doctorsEnabled = isFeatureEnabled("doctors");
+  const hospitalsEnabled = isFeatureEnabled("hospitals");
+  const sosEnabled = isFeatureEnabled("sos");
+
   return (
     <Routes>
       {/* Public Routes */}
@@ -75,15 +80,21 @@ const AppRoutes = () => {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
-        <Route path="/doctors" element={<Doctors />} />
-        <Route path="/doctors/:id" element={<DoctorDetails />} />
+        {doctorsEnabled && <Route path="/doctors" element={<Doctors />} />}
+        {doctorsEnabled && (
+          <Route path="/doctors/:id" element={<DoctorDetails />} />
+        )}
 
-        <Route path="/hospitals" element={<Hospitals />} />
-        <Route path="/hospitals/:id" element={<HospitalDetails />} />
+        {hospitalsEnabled && <Route path="/hospitals" element={<Hospitals />} />}
+        {hospitalsEnabled && (
+          <Route path="/hospitals/:id" element={<HospitalDetails />} />
+        )}
 
         <Route path="/emergency/:patientId" element={<EmergencyProfile />} />
         <Route path="/patient-card/:patientId" element={<PatientQrProfile />} />
-        <Route path="/emergency-sos" element={<EmergencySOS mode="public" />} />
+        {sosEnabled && (
+          <Route path="/emergency-sos" element={<EmergencySOS mode="public" />} />
+        )}
 
         <Route path="/medicines" element={<MedicineSearch />} />
       </Route>
@@ -92,13 +103,13 @@ const AppRoutes = () => {
       <Route
         element={
           <RoleBasedRoute
-            allowedRoles={[
+            allowedRoles={filterEnabledRoles([
               "patient",
               "doctor",
               "hospitalAdmin",
               "medicalOwner",
               "superAdmin",
-            ]}
+            ])}
           >
             <DashboardLayout />
           </RoleBasedRoute>
@@ -114,23 +125,27 @@ const AppRoutes = () => {
           }
         />
 
-        <Route
-          path="/doctor-dashboard"
-          element={
-            <RoleBasedRoute allowedRoles={["doctor"]}>
-              <DoctorDashboard />
-            </RoleBasedRoute>
-          }
-        />
+        {doctorsEnabled && (
+          <Route
+            path="/doctor-dashboard"
+            element={
+              <RoleBasedRoute allowedRoles={["doctor"]}>
+                <DoctorDashboard />
+              </RoleBasedRoute>
+            }
+          />
+        )}
 
-        <Route
-          path="/hospital-dashboard"
-          element={
-            <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
-              <HospitalDashboard />
-            </RoleBasedRoute>
-          }
-        />
+        {hospitalsEnabled && (
+          <Route
+            path="/hospital-dashboard"
+            element={
+              <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
+                <HospitalDashboard />
+              </RoleBasedRoute>
+            }
+          />
+        )}
 
         <Route
           path="/medical-dashboard"
@@ -187,24 +202,28 @@ const AppRoutes = () => {
           }
         />
 
-        <Route
-          path="/super-admin-dashboard/sos-requests"
-          element={
-            <RoleBasedRoute allowedRoles={["superAdmin"]}>
-              <SosRequests />
-            </RoleBasedRoute>
-          }
-        />
+        {sosEnabled && (
+          <Route
+            path="/super-admin-dashboard/sos-requests"
+            element={
+              <RoleBasedRoute allowedRoles={["superAdmin"]}>
+                <SosRequests />
+              </RoleBasedRoute>
+            }
+          />
+        )}
 
         {/* Patient Pages */}
-        <Route
-          path="/patient-dashboard/appointments"
-          element={
-            <RoleBasedRoute allowedRoles={["patient"]}>
-              <PatientAppointments />
-            </RoleBasedRoute>
-          }
-        />
+        {doctorsEnabled && (
+          <Route
+            path="/patient-dashboard/appointments"
+            element={
+              <RoleBasedRoute allowedRoles={["patient"]}>
+                <PatientAppointments />
+              </RoleBasedRoute>
+            }
+          />
+        )}
 
         <Route
           path="/patient-dashboard/reports"
@@ -233,79 +252,91 @@ const AppRoutes = () => {
           }
         />
 
-        <Route
-          path="/patient-dashboard/emergency-sos"
-          element={
-            <RoleBasedRoute allowedRoles={["patient"]}>
-              <EmergencySOS mode="patient" />
-            </RoleBasedRoute>
-          }
-        />
+        {sosEnabled && (
+          <Route
+            path="/patient-dashboard/emergency-sos"
+            element={
+              <RoleBasedRoute allowedRoles={["patient"]}>
+                <EmergencySOS mode="patient" />
+              </RoleBasedRoute>
+            }
+          />
+        )}
 
         {/* Doctor Pages */}
-        <Route
-          path="/doctor-dashboard/appointments"
-          element={
-            <RoleBasedRoute allowedRoles={["doctor"]}>
-              <DoctorAppointments />
-            </RoleBasedRoute>
-          }
-        />
+        {doctorsEnabled && (
+          <>
+            <Route
+              path="/doctor-dashboard/appointments"
+              element={
+                <RoleBasedRoute allowedRoles={["doctor"]}>
+                  <DoctorAppointments />
+                </RoleBasedRoute>
+              }
+            />
 
-        <Route
-          path="/doctor-dashboard/reports"
-          element={
-            <RoleBasedRoute allowedRoles={["doctor"]}>
-              <DoctorReports />
-            </RoleBasedRoute>
-          }
-        />
+            <Route
+              path="/doctor-dashboard/reports"
+              element={
+                <RoleBasedRoute allowedRoles={["doctor"]}>
+                  <DoctorReports />
+                </RoleBasedRoute>
+              }
+            />
 
-        <Route
-          path="/doctor-dashboard/profile"
-          element={
-            <RoleBasedRoute allowedRoles={["doctor"]}>
-              <DoctorProfile />
-            </RoleBasedRoute>
-          }
-        />
+            <Route
+              path="/doctor-dashboard/profile"
+              element={
+                <RoleBasedRoute allowedRoles={["doctor"]}>
+                  <DoctorProfile />
+                </RoleBasedRoute>
+              }
+            />
+          </>
+        )}
 
         {/* Hospital Admin Pages */}
-        <Route
-          path="/hospital-dashboard/appointments"
-          element={
-            <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
-              <HospitalAppointments />
-            </RoleBasedRoute>
-          }
-        />
+        {hospitalsEnabled && (
+          <>
+            <Route
+              path="/hospital-dashboard/appointments"
+              element={
+                <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
+                  <HospitalAppointments />
+                </RoleBasedRoute>
+              }
+            />
 
-        <Route
-          path="/hospital-dashboard/reports"
-          element={
-            <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
-              <HospitalReports />
-            </RoleBasedRoute>
-          }
-        />
+            <Route
+              path="/hospital-dashboard/reports"
+              element={
+                <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
+                  <HospitalReports />
+                </RoleBasedRoute>
+              }
+            />
 
-        <Route
-          path="/hospital-dashboard/profile"
-          element={
-            <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
-              <HospitalProfile />
-            </RoleBasedRoute>
-          }
-        />
+            <Route
+              path="/hospital-dashboard/profile"
+              element={
+                <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
+                  <HospitalProfile />
+                </RoleBasedRoute>
+              }
+            />
 
-        <Route
-          path="/hospital-dashboard/sos-requests"
-          element={
-            <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
-              <SosRequests />
-            </RoleBasedRoute>
-          }
-        />
+            {sosEnabled && (
+              <Route
+                path="/hospital-dashboard/sos-requests"
+                element={
+                  <RoleBasedRoute allowedRoles={["hospitalAdmin"]}>
+                    <SosRequests />
+                  </RoleBasedRoute>
+                }
+              />
+            )}
+          </>
+        )}
 
         {/* Medical Owner Pages */}
         <Route

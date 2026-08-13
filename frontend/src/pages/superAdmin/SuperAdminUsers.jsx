@@ -14,6 +14,7 @@ import {
   XCircle,
 } from "lucide-react";
 import API from "../../api/axios";
+import { isFeatureEnabled, isRoleEnabled } from "../../config/features";
 
 const roleOptions = [
   { label: "All Roles", value: "all" },
@@ -40,6 +41,11 @@ const SuperAdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState("");
+  const doctorsEnabled = isFeatureEnabled("doctors");
+  const hospitalsEnabled = isFeatureEnabled("hospitals");
+  const visibleRoleOptions = roleOptions.filter(
+    (option) => option.value === "all" || isRoleEnabled(option.value),
+  );
 
   const fetchUsers = async () => {
     try {
@@ -54,7 +60,9 @@ const SuperAdminUsers = () => {
 
       const res = await API.get("/super-admin/users", { params });
 
-      setUsers(res.data.users || []);
+      setUsers((res.data.users || []).filter((user) =>
+        isRoleEnabled(user.role),
+      ));
       setStats(res.data.stats || {});
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load users");
@@ -159,7 +167,7 @@ const SuperAdminUsers = () => {
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm text-slate-500 md:text-base">
-                Search patients, doctors, hospital admins, and medical owners.
+                Search patients, medical owners, and enabled account types.
                 Approve, reject, block, delete, or manually verify accounts.
               </p>
             </div>
@@ -177,8 +185,20 @@ const SuperAdminUsers = () => {
         <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
           <StatCard icon={<Users />} title="Total" value={stats.totalUsers || 0} />
           <StatCard icon={<UserCheck />} title="Patients" value={stats.totalPatients || 0} />
-          <StatCard icon={<ShieldCheck />} title="Doctors" value={stats.totalDoctors || 0} />
-          <StatCard icon={<Building2 />} title="Hospitals" value={stats.totalHospitals || 0} />
+          {doctorsEnabled && (
+            <StatCard
+              icon={<ShieldCheck />}
+              title="Doctors"
+              value={stats.totalDoctors || 0}
+            />
+          )}
+          {hospitalsEnabled && (
+            <StatCard
+              icon={<Building2 />}
+              title="Hospitals"
+              value={stats.totalHospitals || 0}
+            />
+          )}
           <StatCard icon={<Store />} title="Medical" value={stats.totalMedicalOwners || 0} />
           <StatCard icon={<MailCheck />} title="Pending" value={stats.pendingApprovals || 0} />
           <StatCard icon={<Ban />} title="Blocked" value={stats.blockedUsers || 0} />
@@ -199,7 +219,11 @@ const SuperAdminUsers = () => {
               />
             </div>
 
-            <FilterSelect value={role} onChange={setRole} options={roleOptions} />
+            <FilterSelect
+              value={role}
+              onChange={setRole}
+              options={visibleRoleOptions}
+            />
             <FilterSelect value={status} onChange={setStatus} options={statusOptions} />
 
             <button

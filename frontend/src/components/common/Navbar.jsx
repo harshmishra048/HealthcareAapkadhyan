@@ -7,6 +7,7 @@ import {
   getSavedGoogleLanguage,
 } from "../../utils/googleTranslate";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../../constants/brand";
+import { getDashboardPath, isFeatureEnabled } from "../../config/features";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -14,24 +15,15 @@ const Navbar = () => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [language, setLanguage] = useState(getSavedGoogleLanguage);
 
-  const dashboardPath =
-    user?.role === "doctor"
-      ? "/doctor-dashboard"
-      : user?.role === "hospitalAdmin"
-        ? "/hospital-dashboard"
-        : user?.role === "superAdmin"
-          ? "/super-admin-dashboard"
-          : user?.role === "medicalOwner"
-            ? "/medical-dashboard"
-            : "/patient-dashboard";
+  const dashboardPath = getDashboardPath(user?.role);
 
   const primaryLinks = [
     { name: "Home", path: "/" },
-    { name: "Doctors", path: "/doctors" },
-    { name: "Hospitals", path: "/hospitals" },
+    isFeatureEnabled("doctors") && { name: "Doctors", path: "/doctors" },
+    isFeatureEnabled("hospitals") && { name: "Hospitals", path: "/hospitals" },
     { name: "Medicines", path: "/medicines" },
-    { name: "Emergency SOS", path: "/emergency-sos" },
-  ];
+    isFeatureEnabled("sos") && { name: "Emergency SOS", path: "/emergency-sos" },
+  ].filter(Boolean);
 
   const secondaryLinks = [
     { name: "Services", path: "/#services" },

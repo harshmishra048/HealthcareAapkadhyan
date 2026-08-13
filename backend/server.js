@@ -9,6 +9,7 @@ const morgan = require("morgan");
 
 const connectDB = require("./src/config/db");
 const errorMiddleware = require("./src/middleware/errorMiddleware");
+const { requireFeature } = require("./src/middleware/featureFlagMiddleware");
 
 const contactRoutes = require("./src/routes/contactRoutes");
 const authRoutes = require("./src/routes/authRoutes");
@@ -38,7 +39,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://healthcare-aapkadhyan.vercel.app",
+  "https://medample.vercel.app",
   ...(process.env.CLIENT_URL || "")
     .split(",")
     .map((origin) => origin.trim())
@@ -122,12 +123,16 @@ app.get("/api/health", (req, res) => {
 app.use("/api/contact", contactRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/super-admin", superAdminRoutes);
-app.use("/api/doctors", doctorRoutes);
-app.use("/api/appointments", appointmentRoutes);
-app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/doctors", requireFeature("doctors", "Doctors"), doctorRoutes);
+app.use(
+  "/api/appointments",
+  requireFeature("doctors", "Appointments"),
+  appointmentRoutes,
+);
+app.use("/api/hospitals", requireFeature("hospitals", "Hospitals"), hospitalRoutes);
 app.use("/api/patients", patientRoutes);
 app.use("/api/reports", reportRoutes);
-app.use("/api/sos", sosRoutes);
+app.use("/api/sos", requireFeature("sos", "SOS"), sosRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/medical-stores", medicalStoreRoutes);
 app.use("/api/medicines", medicineRoutes);
@@ -137,7 +142,11 @@ app.use("/api/medicine-requests", medicineRequestRoutes);
 app.use("/api/medical-owner-dashboard", medicalOwnerDashboardRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/partner-inquiries", partnerInquiryRoutes);
-app.use("/api/nearby-healthcare", nearbyHealthcareRoutes);
+app.use(
+  "/api/nearby-healthcare",
+  requireFeature("hospitals", "Nearby healthcare"),
+  nearbyHealthcareRoutes,
+);
 
 // ==========================
 // 404 HANDLER

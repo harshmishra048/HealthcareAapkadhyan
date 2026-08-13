@@ -18,6 +18,11 @@ import API from "../api/axios";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../constants/brand";
 import { useAuth } from "../context/AuthContext";
 import GoogleAuthButton from "../components/common/GoogleAuthButton";
+import {
+  getDashboardPath,
+  isFeatureEnabled,
+  isRoleEnabled,
+} from "../config/features";
 
 const roles = [
   {
@@ -29,12 +34,14 @@ const roles = [
   {
     label: "Doctor",
     value: "doctor",
+    feature: "doctors",
     icon: Stethoscope,
     desc: "Manage patients and consultations",
   },
   {
     label: "Hospital Admin",
     value: "hospitalAdmin",
+    feature: "hospitals",
     icon: Building2,
     desc: "Manage hospital, doctors and beds",
   },
@@ -46,7 +53,9 @@ const roles = [
   },
 ];
 
-const approvalRequiredRoles = ["doctor", "hospitalAdmin", "medicalOwner"];
+const approvalRequiredRoles = ["doctor", "hospitalAdmin", "medicalOwner"].filter(
+  isRoleEnabled,
+);
 
 const Register = () => {
   const { googleLogin } = useAuth();
@@ -64,6 +73,18 @@ const Register = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const availableRoles = roles.filter(
+    (role) => !role.feature || isFeatureEnabled(role.feature),
+  );
+
+  const registrationHighlights = [
+    "Patients can manage health reports and medicine requests",
+    isFeatureEnabled("doctors") &&
+      "Doctors require approval before dashboard access",
+    isFeatureEnabled("hospitals") &&
+      "Hospital admins require verification before approval",
+    "Medical owners require verification before managing inventory",
+  ].filter(Boolean);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -89,23 +110,6 @@ const Register = () => {
       return "Password must be at least 8 characters.";
     }
     return "";
-  };
-
-  const getDashboardPath = (role) => {
-    switch (role) {
-      case "patient":
-        return "/patient-dashboard";
-      case "doctor":
-        return "/doctor-dashboard";
-      case "hospitalAdmin":
-        return "/hospital-dashboard";
-      case "medicalOwner":
-        return "/medical-dashboard";
-      case "superAdmin":
-        return "/super-admin-dashboard";
-      default:
-        return "/";
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -156,7 +160,14 @@ const Register = () => {
         credential,
         role: formData.role,
       });
-      navigate(getDashboardPath(user.role), { replace: true });
+      const dashboardPath = getDashboardPath(user.role);
+
+      if (dashboardPath === "/") {
+        setError("This account type is currently unavailable.");
+        return;
+      }
+
+      navigate(dashboardPath, { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -187,17 +198,12 @@ const Register = () => {
           </h1>
 
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
-            Register as a patient, doctor, hospital admin, or medical owner and
-            access a powerful healthcare management platform.
+            Register as a patient or medical owner and access a secure
+            healthcare management platform.
           </p>
 
           <div className="mt-8 grid max-w-xl gap-4">
-            {[
-              "Patients can book appointments and manage reports",
-              "Doctors require approval before dashboard access",
-              "Hospital admins require verification before approval",
-              "Medical owners require verification before managing inventory",
-            ].map((item) => (
+            {registrationHighlights.map((item) => (
               <div
                 key={item}
                 className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/70 p-4 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur"
@@ -247,7 +253,7 @@ const Register = () => {
                 </label>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {roles.map((role) => {
+                  {availableRoles.map((role) => {
                     const Icon = role.icon;
                     const active = formData.role === role.value;
 

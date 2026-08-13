@@ -27,6 +27,7 @@ import {
   Cell,
 } from "recharts";
 import API from "../api/axios";
+import { isFeatureEnabled, isRoleEnabled } from "../config/features";
 
 const COLORS = [
   "#06b6d4",
@@ -63,6 +64,9 @@ const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState("");
+  const doctorsEnabled = isFeatureEnabled("doctors");
+  const hospitalsEnabled = isFeatureEnabled("hospitals");
+  const sosEnabled = isFeatureEnabled("sos");
 
   const fetchDashboard = async () => {
     try {
@@ -74,7 +78,9 @@ const SuperAdminDashboard = () => {
         API.get("/analytics/super-admin"),
       ]);
 
-      setPendingUsers(pendingRes.data.users || []);
+      setPendingUsers((pendingRes.data.users || []).filter((user) =>
+        isRoleEnabled(user.role),
+      ));
       setAnalytics(analyticsRes.data.analytics || {});
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load dashboard");
@@ -117,7 +123,12 @@ const SuperAdminDashboard = () => {
     }
   };
 
-  const userRoleData = analytics.charts?.roleAnalytics || [];
+  const userRoleData = (analytics.charts?.roleAnalytics || []).filter((item) => {
+    if (!doctorsEnabled && item.name === "Doctors") return false;
+    if (!hospitalsEnabled && item.name === "Hospital Admins") return false;
+
+    return true;
+  });
 
   const approvalData = [
     { name: "Approved", value: analytics.users?.approvedUsers || 0 },
@@ -125,10 +136,12 @@ const SuperAdminDashboard = () => {
     { name: "Blocked", value: analytics.users?.blockedUsers || 0 },
   ];
 
-  const appointmentData = analytics.charts?.appointmentAnalytics || [];
-  const sosData = analytics.charts?.sosAnalytics || [];
+  const appointmentData = doctorsEnabled
+    ? analytics.charts?.appointmentAnalytics || []
+    : [];
+  const sosData = sosEnabled ? analytics.charts?.sosAnalytics || [] : [];
   const hospitalCapabilityData =
-    analytics.charts?.hospitalCapabilityAnalytics || [];
+    hospitalsEnabled ? analytics.charts?.hospitalCapabilityAnalytics || [] : [];
 
   const formatDate = (date) => {
     if (!date) return "N/A";
@@ -141,6 +154,23 @@ const SuperAdminDashboard = () => {
 
   const formatStatus = (status) => {
     return status?.replaceAll("_", " ") || "N/A";
+  };
+
+  const getPendingRoleLabel = (role) => {
+    const labels = {
+      doctor: "Doctor",
+      hospitalAdmin: "Hospital Admin",
+      medicalOwner: "Medical Owner",
+    };
+
+    return labels[role] || role;
+  };
+
+  const getPendingRoleClassName = (role) => {
+    if (role === "doctor") return "bg-emerald-100 text-emerald-700";
+    if (role === "medicalOwner") return "bg-cyan-100 text-cyan-700";
+
+    return "bg-violet-100 text-violet-700";
   };
 
   return (
@@ -159,8 +189,8 @@ const SuperAdminDashboard = () => {
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm text-slate-500 md:text-base">
-                Monitor users, hospitals, doctors, appointments, reports,
-                emergency SOS activity, and pending professional approvals.
+                Monitor users, reports, medical stores, approvals, and enabled
+                platform activity.
               </p>
             </div>
 
@@ -185,19 +215,23 @@ const SuperAdminDashboard = () => {
             color="from-cyan-500 to-blue-500"
           />
 
-          <StatCard
-            icon={<UserCheck />}
-            title="Doctors"
-            value={analytics.users?.totalDoctorUsers || 0}
-            color="from-emerald-500 to-teal-500"
-          />
+          {doctorsEnabled && (
+            <StatCard
+              icon={<UserCheck />}
+              title="Doctors"
+              value={analytics.users?.totalDoctorUsers || 0}
+              color="from-emerald-500 to-teal-500"
+            />
+          )}
 
-          <StatCard
-            icon={<Building2 />}
-            title="Hospitals"
-            value={analytics.hospitals?.totalHospitals || 0}
-            color="from-violet-500 to-indigo-500"
-          />
+          {hospitalsEnabled && (
+            <StatCard
+              icon={<Building2 />}
+              title="Hospitals"
+              value={analytics.hospitals?.totalHospitals || 0}
+              color="from-violet-500 to-indigo-500"
+            />
+          )}
 
           <StatCard
             icon={<ShieldCheck />}
@@ -222,12 +256,14 @@ const SuperAdminDashboard = () => {
         </div>
 
         <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard
-            icon={<CalendarCheck />}
-            title="Appointments"
-            value={analytics.appointments?.totalAppointments || 0}
-            color="from-blue-500 to-cyan-500"
-          />
+          {doctorsEnabled && (
+            <StatCard
+              icon={<CalendarCheck />}
+              title="Appointments"
+              value={analytics.appointments?.totalAppointments || 0}
+              color="from-blue-500 to-cyan-500"
+            />
+          )}
 
           <StatCard
             icon={<FileText />}
@@ -236,39 +272,43 @@ const SuperAdminDashboard = () => {
             color="from-indigo-500 to-violet-500"
           />
 
-          <StatCard
-            icon={<Siren />}
-            title="SOS Total"
-            value={analytics.sos?.totalSosRequests || 0}
-            color="from-red-500 to-orange-500"
-          />
+          {sosEnabled && (
+            <>
+              <StatCard
+                icon={<Siren />}
+                title="SOS Total"
+                value={analytics.sos?.totalSosRequests || 0}
+                color="from-red-500 to-orange-500"
+              />
 
-          <StatCard
-            icon={<AlertTriangle />}
-            title="New SOS"
-            value={analytics.sos?.newSosRequests || 0}
-            color="from-rose-500 to-red-500"
-          />
+              <StatCard
+                icon={<AlertTriangle />}
+                title="New SOS"
+                value={analytics.sos?.newSosRequests || 0}
+                color="from-rose-500 to-red-500"
+              />
 
-          <StatCard
-            icon={<Activity />}
-            title="Critical SOS"
-            value={analytics.sos?.criticalSosRequests || 0}
-            color="from-orange-500 to-red-500"
-          />
+              <StatCard
+                icon={<Activity />}
+                title="Critical SOS"
+                value={analytics.sos?.criticalSosRequests || 0}
+                color="from-orange-500 to-red-500"
+              />
 
-          <StatCard
-            icon={<Ambulance />}
-            title="Ambulance"
-            value={analytics.sos?.ambulanceDispatchedSosRequests || 0}
-            color="from-purple-500 to-violet-500"
-          />
+              <StatCard
+                icon={<Ambulance />}
+                title="Ambulance"
+                value={analytics.sos?.ambulanceDispatchedSosRequests || 0}
+                color="from-purple-500 to-violet-500"
+              />
+            </>
+          )}
         </div>
 
         <div className="mb-8 grid gap-6 lg:grid-cols-2">
           <ChartCard
             title="User Role Analytics"
-            description="Patients, doctors, hospital admins, and super admins."
+            description="Patients, medical owners, super admins, and enabled roles."
           >
             <div className="overflow-x-auto">
               <BarChart width={520} height={280} data={userRoleData}>
@@ -305,37 +345,42 @@ const SuperAdminDashboard = () => {
             </div>
           </ChartCard>
 
-          <ChartCard
-            title="Appointment Status"
-            description="Pending, accepted, completed, rejected, and cancelled."
-          >
-            <div className="overflow-x-auto">
-              <BarChart width={520} height={280} data={appointmentData}>
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="value" radius={[12, 12, 0, 0]} />
-              </BarChart>
-            </div>
-          </ChartCard>
+          {doctorsEnabled && (
+            <ChartCard
+              title="Appointment Status"
+              description="Pending, accepted, completed, rejected, and cancelled."
+            >
+              <div className="overflow-x-auto">
+                <BarChart width={520} height={280} data={appointmentData}>
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[12, 12, 0, 0]} />
+                </BarChart>
+              </div>
+            </ChartCard>
+          )}
 
-          <ChartCard
-            title="SOS Emergency Status"
-            description="New, critical, accepted, rejected, ambulance, and resolved."
-          >
-            <div className="overflow-x-auto">
-              <BarChart width={520} height={280} data={sosData}>
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="value" radius={[12, 12, 0, 0]} />
-              </BarChart>
-            </div>
-          </ChartCard>
+          {sosEnabled && (
+            <ChartCard
+              title="SOS Emergency Status"
+              description="New, critical, accepted, rejected, ambulance, and resolved."
+            >
+              <div className="overflow-x-auto">
+                <BarChart width={520} height={280} data={sosData}>
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[12, 12, 0, 0]} />
+                </BarChart>
+              </div>
+            </ChartCard>
+          )}
         </div>
 
         <div className="mb-8 grid gap-6 lg:grid-cols-3">
-          <MiniPanel
+          {hospitalsEnabled && (
+            <MiniPanel
             title="Hospital Capabilities"
             description="Emergency, ambulance, and 24x7 hospitals."
           >
@@ -352,9 +397,11 @@ const SuperAdminDashboard = () => {
                 ))}
               </div>
             )}
-          </MiniPanel>
+            </MiniPanel>
+          )}
 
-          <MiniPanel
+          {sosEnabled && (
+            <MiniPanel
             title="Recent SOS Requests"
             description="Latest emergency requests on the platform."
           >
@@ -388,7 +435,8 @@ const SuperAdminDashboard = () => {
                 ))}
               </div>
             )}
-          </MiniPanel>
+            </MiniPanel>
+          )}
 
           <MiniPanel
             title="Recent Reports"
@@ -419,7 +467,8 @@ const SuperAdminDashboard = () => {
           </MiniPanel>
         </div>
 
-        <div className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl shadow-cyan-100/60 backdrop-blur-xl">
+        {doctorsEnabled && (
+          <div className="mb-8 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-xl shadow-cyan-100/60 backdrop-blur-xl">
           <h2 className="text-xl font-black text-slate-900">
             Recent Appointments
           </h2>
@@ -462,7 +511,8 @@ const SuperAdminDashboard = () => {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         <div
           id="pending-applications"
@@ -474,8 +524,8 @@ const SuperAdminDashboard = () => {
                 Pending Applications
               </h2>
               <p className="text-sm text-slate-500">
-                Only verified and approved users should enter professional
-                dashboards.
+                Only verified and approved users should enter enabled
+                professional dashboards.
               </p>
             </div>
 
@@ -501,7 +551,7 @@ const SuperAdminDashboard = () => {
                 No Pending Applications
               </h3>
               <p className="mt-2 text-sm text-slate-500">
-                All doctors and hospital admins are reviewed.
+                All enabled professional applications are reviewed.
               </p>
             </div>
           ) : (
@@ -523,13 +573,11 @@ const SuperAdminDashboard = () => {
                     </div>
 
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-black ${
-                        user.role === "doctor"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-violet-100 text-violet-700"
-                      }`}
+                      className={`rounded-full px-3 py-1 text-xs font-black ${getPendingRoleClassName(
+                        user.role,
+                      )}`}
                     >
-                      {user.role === "doctor" ? "Doctor" : "Hospital Admin"}
+                      {getPendingRoleLabel(user.role)}
                     </span>
                   </div>
 

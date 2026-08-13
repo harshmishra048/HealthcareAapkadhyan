@@ -11,6 +11,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import API from "../api/axios";
+import { isFeatureEnabled, isRoleEnabled } from "../config/features";
 
 const ApprovedUsers = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,8 @@ const ApprovedUsers = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [error, setError] = useState("");
+  const doctorsEnabled = isFeatureEnabled("doctors");
+  const hospitalsEnabled = isFeatureEnabled("hospitals");
 
   const fetchApprovedUsers = async () => {
     try {
@@ -26,7 +29,9 @@ const ApprovedUsers = () => {
       setError("");
 
       const res = await API.get("/super-admin/approved-users");
-      setUsers(res.data.users || []);
+      setUsers((res.data.users || []).filter((user) =>
+        isRoleEnabled(user.role),
+      ));
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load approved users");
     } finally {
@@ -96,7 +101,14 @@ const ApprovedUsers = () => {
 
   const doctorCount = users.filter((u) => u.role === "doctor").length;
   const hospitalCount = users.filter((u) => u.role === "hospitalAdmin").length;
+  const medicalOwnerCount = users.filter((u) => u.role === "medicalOwner").length;
   const blockedCount = users.filter((u) => u.isBlocked).length;
+  const roleOptions = [
+    { label: "All Roles", value: "all" },
+    doctorsEnabled && { label: "Doctors", value: "doctor" },
+    hospitalsEnabled && { label: "Hospital Admins", value: "hospitalAdmin" },
+    { label: "Medical Owners", value: "medicalOwner" },
+  ].filter(Boolean);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-emerald-50 p-4 md:p-8">
@@ -114,8 +126,8 @@ const ApprovedUsers = () => {
               </h1>
 
               <p className="mt-2 max-w-2xl text-sm text-slate-500 md:text-base">
-                Manage approved doctors and hospital admins. Block, unblock, or
-                remove accounts when needed.
+                Manage approved enabled professional accounts. Block, unblock,
+                or remove accounts when needed.
               </p>
             </div>
 
@@ -135,17 +147,27 @@ const ApprovedUsers = () => {
             value={users.length}
             color="from-cyan-500 to-blue-500"
           />
-          <StatCard
-            icon={<UserCheck />}
-            title="Doctors"
-            value={doctorCount}
-            color="from-emerald-500 to-teal-500"
-          />
+          {doctorsEnabled && (
+            <StatCard
+              icon={<UserCheck />}
+              title="Doctors"
+              value={doctorCount}
+              color="from-emerald-500 to-teal-500"
+            />
+          )}
+          {hospitalsEnabled && (
+            <StatCard
+              icon={<Building2 />}
+              title="Hospitals"
+              value={hospitalCount}
+              color="from-violet-500 to-indigo-500"
+            />
+          )}
           <StatCard
             icon={<Building2 />}
-            title="Hospitals"
-            value={hospitalCount}
-            color="from-violet-500 to-indigo-500"
+            title="Medical Owners"
+            value={medicalOwnerCount}
+            color="from-cyan-500 to-blue-500"
           />
           <StatCard
             icon={<Ban />}
@@ -182,9 +204,11 @@ const ApprovedUsers = () => {
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm outline-none"
               >
-                <option value="all">All Roles</option>
-                <option value="doctor">Doctors</option>
-                <option value="hospitalAdmin">Hospital Admins</option>
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -239,12 +263,10 @@ const ApprovedUsers = () => {
                     <div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-black ${
-                          user.role === "doctor"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-violet-100 text-violet-700"
+                          getRoleClassName(user.role)
                         }`}
                       >
-                        {user.role === "doctor" ? "Doctor" : "Hospital Admin"}
+                        {formatRole(user.role)}
                       </span>
                     </div>
 
@@ -316,6 +338,23 @@ const StatCard = ({ icon, title, value, color }) => {
       <h3 className="mt-1 text-3xl font-black text-slate-900">{value}</h3>
     </div>
   );
+};
+
+const formatRole = (role) => {
+  const labels = {
+    doctor: "Doctor",
+    hospitalAdmin: "Hospital Admin",
+    medicalOwner: "Medical Owner",
+  };
+
+  return labels[role] || role;
+};
+
+const getRoleClassName = (role) => {
+  if (role === "doctor") return "bg-emerald-100 text-emerald-700";
+  if (role === "medicalOwner") return "bg-cyan-100 text-cyan-700";
+
+  return "bg-violet-100 text-violet-700";
 };
 
 export default ApprovedUsers;

@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../constants/brand";
+import { getDashboardPath, isFeatureEnabled } from "../config/features";
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
@@ -38,19 +39,13 @@ const DashboardLayout = () => {
     latest: null,
   });
 
-  const dashboardPath =
-    user?.role === "doctor"
-      ? "/doctor-dashboard"
-      : user?.role === "hospitalAdmin"
-        ? "/hospital-dashboard"
-        : user?.role === "superAdmin"
-          ? "/super-admin-dashboard"
-          : user?.role === "medicalOwner"
-            ? "/medical-dashboard"
-            : "/patient-dashboard";
+  const doctorsEnabled = isFeatureEnabled("doctors");
+  const hospitalsEnabled = isFeatureEnabled("hospitals");
+  const sosEnabled = isFeatureEnabled("sos");
+  const dashboardPath = getDashboardPath(user?.role);
 
   const canMonitorSos =
-    user?.role === "superAdmin" || user?.role === "hospitalAdmin";
+    sosEnabled && (user?.role === "superAdmin" || user?.role === "hospitalAdmin");
 
   const normalLinks = [
     {
@@ -58,7 +53,7 @@ const DashboardLayout = () => {
       path: dashboardPath,
       icon: LayoutDashboard,
     },
-    {
+    doctorsEnabled && {
       name: "Appointments",
       path: `${dashboardPath}/appointments`,
       icon: CalendarCheck,
@@ -73,7 +68,7 @@ const DashboardLayout = () => {
       path: `${dashboardPath}/profile`,
       icon: User,
     },
-  ];
+  ].filter(Boolean);
 
   const patientExtraLinks =
     user?.role === "patient"
@@ -88,23 +83,23 @@ const DashboardLayout = () => {
             path: "/patient-dashboard/medicine-requests",
             icon: Pill,
           },
-          {
+          sosEnabled && {
             name: "Emergency SOS",
             path: "/patient-dashboard/emergency-sos",
             icon: Siren,
           },
-        ]
+        ].filter(Boolean)
       : [];
 
   const hospitalExtraLinks =
-    user?.role === "hospitalAdmin"
+    hospitalsEnabled && user?.role === "hospitalAdmin"
       ? [
-          {
+          sosEnabled && {
             name: "SOS Requests",
             path: "/hospital-dashboard/sos-requests",
             icon: Siren,
           },
-        ]
+        ].filter(Boolean)
       : [];
 
   const medicalOwnerLinks = [
@@ -179,12 +174,12 @@ const DashboardLayout = () => {
       path: "/super-admin-dashboard/reports",
       icon: FileText,
     },
-    {
+    sosEnabled && {
       name: "SOS Requests",
       path: "/super-admin-dashboard/sos-requests",
       icon: Siren,
     },
-  ];
+  ].filter(Boolean);
 
   const links =
     user?.role === "superAdmin"
@@ -412,11 +407,17 @@ const DashboardLayout = () => {
 
               <p className="text-sm text-slate-500">
                 {user?.role === "superAdmin"
-                  ? "Manage platform approvals, users, reports, emergency SOS, and system control."
+                  ? sosEnabled
+                    ? "Manage platform approvals, users, reports, emergency SOS, and system control."
+                    : "Manage platform approvals, users, reports, and system control."
                   : user?.role === "hospitalAdmin"
-                    ? "Manage hospital profile, appointments, reports, and emergency SOS requests."
+                    ? sosEnabled
+                      ? "Manage hospital profile, appointments, reports, and emergency SOS requests."
+                      : "Manage hospital profile, appointments, and reports."
                     : user?.role === "patient"
-                      ? "Manage your healthcare activities, medicine requests, and emergency support securely."
+                      ? sosEnabled
+                        ? "Manage your healthcare activities, medicine requests, and emergency support securely."
+                        : "Manage your healthcare activities, medicine requests, and reports securely."
                       : user?.role === "medicalOwner"
                         ? "Manage medicines, inventory, QR discounts, and monthly customer interactions."
                         : "Manage your healthcare activities securely."}
