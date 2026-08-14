@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 const GOOGLE_SCRIPT_ID = "google-identity-services";
 
+// Keep Google GIS initialization at module level so it happens only once.
+let googleInitializedClientId = null;
+let googleCredentialHandler = null;
+
 const loadGoogleScript = () => {
   if (window.google?.accounts?.id) {
     return Promise.resolve();
@@ -33,28 +37,38 @@ const loadGoogleScript = () => {
 };
 
 const GoogleAuthButton = ({ onCredential, text = "continue_with" }) => {
-
-  console.log(
-    "Google Client ID configured:",
-    Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID),
-  );
   const buttonRef = useRef(null);
+  const onCredentialRef = useRef(onCredential);
 
   const [available, setAvailable] = useState(
     Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID),
   );
+
+  // Always keep the latest callback without re-running Google initialization.
+  useEffect(() => {
+    onCredentialRef.current = onCredential;
+  }, [onCredential]);
 
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
     if (!clientId) {
       console.error("Google Auth: VITE_GOOGLE_CLIENT_ID is missing.");
-
       setAvailable(false);
       return;
     }
 
     let cancelled = false;
+
+    // Store the latest handler for Google's global callback.
+    googleCredentialHandler = (credential) => {
+      if (!credential) {
+        console.error("Google Auth: No credential received.");
+        return;
+      }
+
+      onCredentialRef.current?.(credential);
+    };
 
     const initializeGoogle = async () => {
       try {
@@ -64,18 +78,36 @@ const GoogleAuthButton = ({ onCredential, text = "continue_with" }) => {
           return;
         }
 
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response) => {
-            if (!response?.credential) {
-              console.error("Google Auth: No credential received.");
-              return;
-            }
+        /*
+         * IMPORTANT:
+         * Google Identity Services should only be initialized once.
+         *
+         * This also prevents duplicate initialization caused by:
+         * - React re-renders
+         * - React StrictMode
+         * - multiple GoogleAuthButton mounts
+         */
+        if (googleInitializedClientId !== clientId) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response) => {
+              if (!response?.credential) {
+                console.error("Google Auth: No credential received.");
+                return;
+              }
 
-            onCredential(response.credential);
-          },
-        });
+              googleCredentialHandler?.(response.credential);
+            },
+          });
 
+          googleInitializedClientId = clientId;
+        }
+
+        if (cancelled || !buttonRef.current) {
+          return;
+        }
+
+        // Clear any previously rendered Google button.
         buttonRef.current.innerHTML = "";
 
         window.google.accounts.id.renderButton(buttonRef.current, {
@@ -96,8 +128,11 @@ const GoogleAuthButton = ({ onCredential, text = "continue_with" }) => {
 
     return () => {
       cancelled = true;
+
+      // Don't reset googleInitializedClientId.
+      // GIS can remain initialized for the lifetime of the page.
     };
-  }, [onCredential, text]);
+  }, [text]);
 
   if (!available) {
     return null;
