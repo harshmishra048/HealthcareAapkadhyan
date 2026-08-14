@@ -19,6 +19,11 @@ const loadGoogleScript = () => {
   });
 };
 
+console.log(
+  "Production Google Client ID:",
+  import.meta.env.VITE_GOOGLE_CLIENT_ID,
+);
+
 const GoogleAuthButton = ({ onCredential, text = "continue_with" }) => {
   const buttonRef = useRef(null);
   const [available, setAvailable] = useState(Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID));

@@ -1,61 +1,76 @@
 import {
   FiShield,
-  FiZap,
-  FiBriefcase,
   FiHeadphones,
-  FiRadio,
+  FiDollarSign,
+  // FiRadio,
+  // FiZap,
+  // FiBriefcase,
 } from "react-icons/fi";
-import { FaUserDoctor, FaHospital, FaBrain } from "react-icons/fa6";
+import {
+  FaUserDoctor,
+  FaFlaskVial,
+  FaTruckMedical,
+  FaWheelchair,
+  FaStore,
+  // FaHospital,
+} from "react-icons/fa6";
 
 const features = [
   {
-    title: "Verified Doctors",
-    desc: "Every credential audited and re-verified annually.",
+    title: "Trusted Local Pharmacies",
+    desc: "Reliable pharmacy partners for genuine medicines and healthcare products.",
     hoverDesc:
-      "All doctors are manually verified with license checks, qualification validation, specialization review, and continuous re-verification.",
-    icon: FiShield,
+      "We connect you with trusted local pharmacies that focus on genuine medicines, dependable service, and convenient access to essential healthcare products.",
+    icon: FaStore,
   },
   {
-    title: "Trusted Hospitals",
-    desc: "Partnered with verified and accredited institutions.",
+    title: "Certified Partner Labs",
+    desc: "Trusted diagnostic partners for dependable testing and reports.",
     hoverDesc:
-      "We collaborate with certified hospitals, emergency centers, and specialty care institutions with trusted infrastructure.",
-    icon: FaHospital,
+      "Our diagnostic network connects patients with trusted partner laboratories for reliable testing, convenient sample collection, and accessible diagnostic reports.",
+    icon: FaFlaskVial,
   },
   {
-    title: "Instant Booking",
-    desc: "Sub-30s confirmation. No phone tag.",
+    title: "Genuine Medical Equipment",
+    desc: "Quality equipment for patients and home healthcare needs.",
     hoverDesc:
-      "Book appointments, emergency slots, consultations, or hospital beds instantly with real-time availability.",
-    icon: FiZap,
+      "Access genuine medical equipment for home healthcare, including patient beds, wheelchairs, walkers, nebulizers, BP monitors, oxygen concentrators, and other essential equipment.",
+    icon: FaWheelchair,
   },
   {
-    title: "Emergency Priority",
-    desc: "Pre-authorized SOS routing to nearest ER.",
+    title: "Affordable Pricing",
+    desc: "Quality healthcare services and products at competitive prices.",
     hoverDesc:
-      "Critical emergency requests are prioritized with rapid routing, nearest hospital suggestions, and quick response workflows.",
-    icon: FiHeadphones,
+      "We aim to make essential healthcare more accessible through competitive pricing, partner discounts, and value-focused healthcare services without compromising quality.",
+    icon: FiDollarSign,
   },
   {
-    title: "Secure Reports",
-    desc: "End-to-end encrypted vault for medical records.",
+    title: "Fast Home Delivery",
+    desc: "Convenient doorstep delivery for medicines and healthcare essentials.",
     hoverDesc:
-      "Upload prescriptions, scans, reports, lab history, and treatment records securely with encrypted access control.",
-    icon: FiBriefcase,
+      "Get medicines and selected healthcare essentials delivered conveniently to your doorstep, helping you save time when healthcare products are needed at home.",
+    icon: FaTruckMedical,
   },
   {
-    title: "Fast Access",
-    desc: "Quick platform response with smooth user experience.",
+    title: "Quality Healthcare",
+    desc: "Dependable healthcare services designed around your needs.",
     hoverDesc:
-      "Optimized architecture ensures rapid loading, smooth navigation, and real-time performance across devices.",
+      "MedAmple brings medicines, diagnostics, medical equipment, pharmacies, and healthcare services together to provide a convenient and quality-focused healthcare experience.",
     icon: FaUserDoctor,
   },
   {
-    title: "Real-time Updates",
-    desc: "Live status across all care events.",
+    title: "Professional Service",
+    desc: "Reliable support through a connected healthcare network.",
     hoverDesc:
-      "Track appointment approvals, doctor availability, emergency responses, bed confirmation, and consultation progress.",
-    icon: FiRadio,
+      "Our platform is designed to connect patients with healthcare professionals, pharmacies, diagnostic labs, hospitals, and medical service partners through a convenient and professional experience.",
+    icon: FiHeadphones,
+  },
+  {
+    title: "One Platform for Complete Healthcare",
+    desc: "Medicines, diagnostics, equipment, and healthcare services in one place.",
+    hoverDesc:
+      "From medicines and lab tests to home medical equipment, partner pharmacies, diagnostic labs, and doorstep delivery, MedAmple brings essential healthcare services together on one platform.",
+    icon: FiShield,
   },
 ];
 
@@ -71,8 +86,8 @@ const WhyUs = () => {
           <h2 className="mt-4 max-w-2xl text-3xl font-extrabold leading-tight text-slate-950 sm:text-4xl lg:text-5xl">
             Built for trust.{" "}
             <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-              Engineered <br className="hidden sm:block" />
-              for speed.
+              Designed for <br className="hidden sm:block" />
+              complete care.
             </span>
           </h2>
         </div>
