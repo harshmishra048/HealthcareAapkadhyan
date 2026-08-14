@@ -92,14 +92,6 @@ const Footer = () => {
 
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
-                to="/emergency-sos"
-                className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-red-950/30 transition hover:bg-red-700"
-              >
-                <Ambulance size={18} />
-                Emergency SOS
-              </Link>
-
-              <Link
                 to="/partners"
                 className="inline-flex items-center gap-2 rounded-2xl border border-cyan-400/30 bg-white/10 px-5 py-3 text-sm font-black text-cyan-100 transition hover:bg-white/15"
               >

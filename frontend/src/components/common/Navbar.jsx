@@ -22,14 +22,14 @@ const Navbar = () => {
     isFeatureEnabled("doctors") && { name: "Doctors", path: "/doctors" },
     isFeatureEnabled("hospitals") && { name: "Hospitals", path: "/hospitals" },
     { name: "Medicines", path: "/medicines" },
-    isFeatureEnabled("sos") && { name: "Emergency SOS", path: "/emergency-sos" },
+    isFeatureEnabled("sos") && {name: "Emergency SOS",path: "/emergency-sos",},
+    isFeatureEnabled("about") && { name: "About", path: "/about" },
+    isFeatureEnabled("contact") && { name: "Contact", path: "/contact" },
   ].filter(Boolean);
 
   const secondaryLinks = [
-    { name: "Services", path: "/#services" },
+    { name: "Services", path: "/services" },
     { name: "Partners", path: "/partners" },
-    { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
   ];
 
   const handleLanguageChange = (e) => {
