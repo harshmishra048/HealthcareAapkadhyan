@@ -45,18 +45,14 @@ const DashboardLayout = () => {
   const dashboardPath = getDashboardPath(user?.role);
 
   const canMonitorSos =
-    sosEnabled && (user?.role === "superAdmin" || user?.role === "hospitalAdmin");
+    sosEnabled &&
+    (user?.role === "superAdmin" || user?.role === "hospitalAdmin");
 
   const normalLinks = [
     {
       name: "Dashboard",
       path: dashboardPath,
       icon: LayoutDashboard,
-    },
-    doctorsEnabled && {
-      name: "Appointments",
-      path: `${dashboardPath}/appointments`,
-      icon: CalendarCheck,
     },
     {
       name: "Reports",
@@ -82,22 +78,6 @@ const DashboardLayout = () => {
             name: "Medicine Requests",
             path: "/patient-dashboard/medicine-requests",
             icon: Pill,
-          },
-          sosEnabled && {
-            name: "Emergency SOS",
-            path: "/patient-dashboard/emergency-sos",
-            icon: Siren,
-          },
-        ].filter(Boolean)
-      : [];
-
-  const hospitalExtraLinks =
-    hospitalsEnabled && user?.role === "hospitalAdmin"
-      ? [
-          sosEnabled && {
-            name: "SOS Requests",
-            path: "/hospital-dashboard/sos-requests",
-            icon: Siren,
           },
         ].filter(Boolean)
       : [];
@@ -174,11 +154,6 @@ const DashboardLayout = () => {
       path: "/super-admin-dashboard/reports",
       icon: FileText,
     },
-    sosEnabled && {
-      name: "SOS Requests",
-      path: "/super-admin-dashboard/sos-requests",
-      icon: Siren,
-    },
   ].filter(Boolean);
 
   const links =
@@ -186,7 +161,7 @@ const DashboardLayout = () => {
       ? superAdminLinks
       : user?.role === "medicalOwner"
         ? medicalOwnerLinks
-        : [...normalLinks, ...patientExtraLinks, ...hospitalExtraLinks];
+        : [...normalLinks, ...patientExtraLinks];
 
   const fetchPendingMedicineRequests = async () => {
     try {
@@ -407,17 +382,11 @@ const DashboardLayout = () => {
 
               <p className="text-sm text-slate-500">
                 {user?.role === "superAdmin"
-                  ? sosEnabled
-                    ? "Manage platform approvals, users, reports, emergency SOS, and system control."
-                    : "Manage platform approvals, users, reports, and system control."
+                  ? "Manage platform approvals, users, reports, and system control."
                   : user?.role === "hospitalAdmin"
-                    ? sosEnabled
-                      ? "Manage hospital profile, appointments, reports, and emergency SOS requests."
-                      : "Manage hospital profile, appointments, and reports."
+                    ? "Manage hospital profile, service updates, and operational reports."
                     : user?.role === "patient"
-                      ? sosEnabled
-                        ? "Manage your healthcare activities, medicine requests, and emergency support securely."
-                        : "Manage your healthcare activities, medicine requests, and reports securely."
+                      ? "Manage your healthcare activities, medicine requests, and reports securely."
                       : user?.role === "medicalOwner"
                         ? "Manage medicines, inventory, QR discounts, and monthly customer interactions."
                         : "Manage your healthcare activities securely."}

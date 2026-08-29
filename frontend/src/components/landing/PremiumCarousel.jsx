@@ -28,13 +28,13 @@ const slides = [
     id: 3,
     image:
       "https://res.cloudinary.com/davsexxnb/image/upload/q_auto/f_auto/v1779608980/copy_of_chatgpt_image_may_24_2026_01_13_46_pm_tqhime.png",
-    title: "Smart Hospital Management",
+    title: "Smart Healthcare Access",
     description:
-      "Efficient hospital operations, seamless patient experience, and professional care management under one platform.",
+      "A connected experience for medicines, care coordination, and reliable support under one trusted platform.",
     badge: "Premium",
     badgeColor: "bg-emerald-500",
-    herobtn: "Find Best Hospitals",
-    link: "/hospitals",
+    herobtn: "Explore Services",
+    link: "/services",
   },
   {
     id: 4,

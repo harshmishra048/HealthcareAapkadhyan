@@ -75,8 +75,8 @@ const Contact = () => {
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-slate-600">
-            Have questions about appointments, hospitals, doctors, emergency
-            support, or patient services? Send us a message.
+            Have questions about healthcare services, secure access, partner
+            support, or platform assistance? Send us a message.
           </p>
         </div>
 

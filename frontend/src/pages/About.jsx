@@ -34,9 +34,8 @@ const stagger = {
 
 const objectives = [
   "Make healthcare access faster, easier, and more reliable.",
-  "Help patients find doctors, hospitals, emergency care, and medical support in one place.",
+  "Making healthcare simpler with easy access to medicines and lab diagnostic services—all in one place.",
   "Store and manage medical reports securely through patient identity.",
-  "Support emergency situations with SOS, location, and nearby healthcare assistance.",
   "Build a platform that works for cities, towns, and rural areas.",
 ];
 
@@ -65,19 +64,19 @@ const values = [
 
 const features = [
   {
-    title: "Doctor Appointments",
+    title: "Healthcare Access",
     icon: Stethoscope,
   },
   {
-    title: "Hospital Availability",
+    title: "Service Availability",
     icon: Hospital,
   },
   {
-    title: "Emergency SOS",
+    title: "Care Support",
     icon: PhoneCall,
   },
   {
-    title: "Medical Reports",
+    title: "Medical Records",
     icon: FileText,
   },
 ];
@@ -118,7 +117,7 @@ const journey = [
   {
     year: "Step 02",
     title: "Platform Planning",
-    desc: "We planned a complete healthcare ecosystem with patients, doctors, hospitals, reports, appointments, and SOS support.",
+    desc: "We planned a connected healthcare ecosystem built around trusted services, secure records, and better access to care.",
   },
   {
     year: "Step 03",
@@ -218,8 +217,8 @@ const About = () => {
             <p className="mt-5 leading-8 text-slate-600">
               We started MedAmple with a simple thought: healthcare should not
               feel confusing when someone needs help. Many people face problems
-              while finding doctors, checking hospital availability, managing
-              reports, or getting emergency support.
+              while searching for trusted services, reliable support, secure
+              records, and convenient care coordination.
             </p>
 
             <p className="mt-4 leading-8 text-slate-600">
@@ -279,7 +278,7 @@ const About = () => {
 
             <p className="mt-5 leading-8 text-slate-600">
               We want MedAmple to become a helpful digital companion for
-              patients, families, doctors, and hospitals.
+              patients, families, and healthcare partners.
             </p>
           </motion.div>
 
@@ -338,7 +337,7 @@ const About = () => {
 
               <p className="mt-4 leading-8 text-slate-600">
                 To create a healthcare platform where patients can easily find
-                doctors, hospitals, reports, appointments, and emergency help
+                trusted care services, secure records, and responsive support
                 without unnecessary confusion or delay.
               </p>
             </motion.div>
@@ -380,8 +379,8 @@ const About = () => {
             </div>
 
             <p className="max-w-xl leading-8 text-slate-600">
-              Every decision at MedAmple is based on real healthcare needs,
-              user trust, and simple digital access.
+              Every decision at MedAmple is based on real healthcare needs, user
+              trust, and simple digital access.
             </p>
           </div>
 
@@ -518,28 +517,26 @@ const About = () => {
               </h3>
 
               <p className="mt-5 leading-8 text-slate-600">
-                The founder and owner of MedAmple started this platform with
-                the belief that healthcare should not feel complicated when
-                people need help the most. The idea behind MedAmple is to
-                bring patients, doctors, hospitals, medical reports,
-                appointments, and emergency support into one trusted digital
-                ecosystem.
+                The founder and owner of MedAmple started this platform with the
+                belief that healthcare should not feel complicated when people
+                need help the most. The idea behind MedAmple is to bring
+                patients, trusted care partners, medical records, and reliable
+                support into one secure digital ecosystem.
               </p>
 
               <p className="mt-4 leading-8 text-slate-600">
                 The owner’s vision is to create a platform that can help
                 families find reliable healthcare support, manage important
-                medical information, and respond faster during emergency
-                situations. MedAmple is being built with a strong focus on
-                trust, accessibility, security, and real-world healthcare
-                problems.
+                medical information, and access timely assistance when needed.
+                MedAmple is being built with a strong focus on trust,
+                accessibility, security, and real-world healthcare problems.
               </p>
 
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 {[
                   "Healthcare Innovation",
                   "Patient-Centered Vision",
-                  "Emergency Support Focus",
+                  "Support-Focused Care",
                   "Secure Digital Health Access",
                 ].map((item) => (
                   <div

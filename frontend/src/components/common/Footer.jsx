@@ -14,19 +14,13 @@ import { BRAND_LOGO_URL, BRAND_NAME } from "../../constants/brand";
 const footerColumns = [
   {
     title: "Platform",
-    links: [
-      { label: "Find Doctors", path: "/doctors" },
-      { label: "Find Hospitals", path: "/hospitals" },
-      { label: "Find Medicines", path: "/medicines" },
-      { label: "Emergency SOS", path: "/emergency-sos" },
-    ],
+    links: [{ label: "Find Medicines", path: "/medicines" }],
   },
   {
     title: "For Users",
     links: [
       { label: "Patient Login", path: "/login" },
       { label: "Create Account", path: "/register" },
-      { label: "Book Appointment", path: "/doctors" },
       { label: "Medical Reports", path: "/login" },
     ],
   },
@@ -42,8 +36,6 @@ const footerColumns = [
   {
     title: "Trust",
     links: [
-      { label: "Verified Doctors", path: "/doctors" },
-      { label: "Approved Hospitals", path: "/hospitals" },
       { label: "Secure Access", path: "/login" },
       { label: "Support", path: "/contact" },
     ],
@@ -76,17 +68,17 @@ const Footer = () => {
               <span className="notranslate" translate="no">
                 {BRAND_NAME}
               </span>{" "}
-              connects patients, doctors, hospitals, medical
-              stores, emergency support, reports, and healthcare partners in one
-              secure digital ecosystem.
+              brings essential healthcare services, trusted support, secure
+              records, and convenient access together in one reliable digital
+              ecosystem.
             </p>
 
             <div className="mt-6 grid gap-3 text-sm text-slate-300">
-              <ContactLine icon={<FiMail />} text="support@medample.com" />
-              <ContactLine icon={<FiPhone />} text="+91 98765 43210" />
+              <ContactLine icon={<FiMail />} text="medample2026@gmail.com" />
+              <ContactLine icon={<FiPhone />} text="+91 79872 28973" />
               <ContactLine
                 icon={<FiMapPin />}
-                text="Satna, Madhya Pradesh, India"
+                text="Sai-Kripa , Rajendra-Nagar, Lnae No-4, Satna, M.P."
               />
             </div>
 
@@ -134,7 +126,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-5 rounded-[2rem] border border-white/10 bg-white/5 p-5 md:grid-cols-3">
+        {/* <div className="mt-12 grid gap-5 rounded-[2rem] border border-white/10 bg-white/5 p-5 md:grid-cols-3">
           <TrustCard
             icon={<ShieldCheck />}
             title="Verified Network"
@@ -150,7 +142,7 @@ const Footer = () => {
             title="Emergency Ready"
             text="Public and patient SOS flows help emergency requests reach platform and hospital teams."
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="border-t border-white/10">
@@ -161,8 +153,7 @@ const Footer = () => {
               <span className="notranslate" translate="no">
                 {BRAND_NAME}
               </span>{" "}
-              Health Technologies. All rights
-              reserved.
+              Health Technologies. All rights reserved.
             </p>
             <p className="mt-1 text-xs text-slate-500">
               Healthcare information on this platform is for service access and

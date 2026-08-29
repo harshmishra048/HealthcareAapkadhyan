@@ -9,32 +9,32 @@ import {
 const steps = [
   {
     id: 1,
-    title: "Search",
-    desc: "Find doctors or hospitals near you with smart filters.",
+    title: "Explore",
+    desc: "Browse trusted healthcare services and essentials that match your needs.",
     icon: FiSearch,
   },
   {
     id: 2,
-    title: "Check availability",
-    desc: "Live slots, bed availability and emergency readiness.",
+    title: "Compare",
+    desc: "Review service details, verified partners, and available options with ease.",
     icon: FiCheckCircle,
   },
   {
     id: 3,
-    title: "Book instantly",
-    desc: "Secure confirmation in under 30 seconds.",
+    title: "Confirm",
+    desc: "Secure your request in a simple, guided flow with clear updates.",
     icon: FiCalendar,
   },
   {
     id: 4,
-    title: "Upload reports",
-    desc: "Share medical history with your provider securely.",
+    title: "Share records",
+    desc: "Keep important health details organized and accessible when needed.",
     icon: FiUpload,
   },
   {
     id: 5,
-    title: "Receive care",
-    desc: "In-person, video or emergency care — your way.",
+    title: "Stay supported",
+    desc: "Receive a smooth experience with trusted care and responsive service support.",
     icon: FiHeart,
   },
 ];

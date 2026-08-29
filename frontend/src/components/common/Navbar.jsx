@@ -19,10 +19,7 @@ const Navbar = () => {
 
   const primaryLinks = [
     { name: "Home", path: "/" },
-    isFeatureEnabled("doctors") && { name: "Doctors", path: "/doctors" },
-    isFeatureEnabled("hospitals") && { name: "Hospitals", path: "/hospitals" },
     { name: "Medicines", path: "/medicines" },
-    isFeatureEnabled("sos") && {name: "Emergency SOS",path: "/emergency-sos",},
     isFeatureEnabled("about") && { name: "About", path: "/about" },
     isFeatureEnabled("contact") && { name: "Contact", path: "/contact" },
   ].filter(Boolean);
@@ -42,14 +39,24 @@ const Navbar = () => {
   const renderNavLink = (link, className, onClick) => {
     if (link.path.startsWith("/#")) {
       return (
-        <a key={link.name} href={link.path} onClick={onClick} className={className}>
+        <a
+          key={link.name}
+          href={link.path}
+          onClick={onClick}
+          className={className}
+        >
           {link.name}
         </a>
       );
     }
 
     return (
-      <Link key={link.name} to={link.path} onClick={onClick} className={className}>
+      <Link
+        key={link.name}
+        to={link.path}
+        onClick={onClick}
+        className={className}
+      >
         {link.name}
       </Link>
     );

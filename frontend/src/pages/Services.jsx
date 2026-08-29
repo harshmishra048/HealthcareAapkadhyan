@@ -26,14 +26,14 @@ const services = [
   // =========================
   // EMERGENCY & PATIENT CARE
   // =========================
-  {
-    title: "Emergency QR Profile",
-    description:
-      "Critical patient details available instantly during urgent care, helping healthcare professionals respond faster.",
-    icon: FaQrcode,
-    color: "from-fuchsia-500 to-purple-400",
-    path: "/emergency-sos",
-  },
+  // {
+  //   title: "Emergency QR Profile",
+  //   description:
+  //     "Critical patient details available instantly during urgent care, helping healthcare professionals respond faster.",
+  //   icon: FaQrcode,
+  //   color: "from-fuchsia-500 to-purple-400",
+  //   path: "/emergency-sos",
+  // },
   // {
   //   title: "Emergency SOS",
   //   description:
@@ -54,14 +54,14 @@ const services = [
   //   color: "from-blue-500 to-cyan-400",
   //   path: "/doctors",
   // },
-  {
-    title: "Specialist Discovery",
-    description:
-      "Find the right medical specialist across multiple healthcare fields based on your treatment requirements.",
-    icon: FaUserNurse,
-    color: "from-indigo-500 to-blue-400",
-    path: "/doctors",
-  },
+  // {
+  //   title: "Specialist Discovery",
+  //   description:
+  //     "Find the right medical specialist across multiple healthcare fields based on your treatment requirements.",
+  //   icon: FaUserNurse,
+  //   color: "from-indigo-500 to-blue-400",
+  //   path: "/doctors",
+  // },
   // {
   //   title: "Nearby Hospitals",
   //   description:
@@ -116,15 +116,6 @@ const services = [
     icon: FaMicroscope,
     color: "from-sky-500 to-blue-400",
     path: "/diagnostics",
-  },
-
-  {
-    title: "Medicines Home Delivery",
-    description:
-      "Order essential medicines conveniently and get them delivered safely to your doorstep through our healthcare network.",
-    icon: FaCapsules,
-    color: "from-fuchsia-500 to-purple-400",
-    path: "/medicines",
   },
   {
     title: "Partner Pharmacy Discounts",
