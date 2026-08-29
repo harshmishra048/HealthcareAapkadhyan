@@ -37,7 +37,7 @@ const Navbar = () => {
   ].filter(Boolean);
 
   const secondaryLinks = [
-    { name: "Services", path: "/services" },
+    { name: "Services", path: "https://medamle.myshopify.com/pages/our-services", external:true },
     {
       name: "Partners",
       path: "https://medamle.myshopify.com/pages/partnership",
