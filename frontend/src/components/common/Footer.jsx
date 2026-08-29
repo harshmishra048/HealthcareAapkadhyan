@@ -8,13 +8,29 @@ import {
   FiTwitter,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import { Ambulance, HeartPulse, ShieldCheck } from "lucide-react";
+// import { Ambulance, HeartPulse, ShieldCheck } from "lucide-react";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../../constants/brand";
 
 const footerColumns = [
   {
     title: "Platform",
-    links: [{ label: "Find Medicines", path: "/medicines" }],
+    links: [
+      {
+        label: "Find Medicines",
+        path: "https://medamle.myshopify.com/collections/medicines-otc",
+        external: true,
+      },
+      {
+        label: "Our Services",
+        path: "https://medamle.myshopify.com/pages/our-services",
+        external: true,
+      },
+      {
+        label: "Our Teams",
+        path: "https://medamle.myshopify.com/pages/our-team",
+        external: true,
+      },
+    ],
   },
   {
     title: "For Users",
@@ -27,9 +43,21 @@ const footerColumns = [
   {
     title: "Company",
     links: [
-      { label: "About Us", path: "/about" },
-      { label: "Partner With Us", path: "/partners" },
-      { label: "Contact", path: "/contact" },
+      {
+        label: "About Us",
+        path: "https://medamle.myshopify.com/pages/about-us",
+        external: true,
+      },
+      {
+        label: "Partner With Us",
+        path: "https://medamle.myshopify.com/pages/partnership",
+        external: true,
+      },
+      {
+        label: "Contact",
+        path: "https://medamle.myshopify.com/pages/contact",
+        external: true,
+      },
       { label: "Testimonials", path: "/#testimonials" },
     ],
   },
@@ -37,7 +65,11 @@ const footerColumns = [
     title: "Trust",
     links: [
       { label: "Secure Access", path: "/login" },
-      { label: "Support", path: "/contact" },
+      {
+        label: "Support",
+        path: "https://medamle.myshopify.com/pages/contact",
+        external: true,
+      },
     ],
   },
 ];

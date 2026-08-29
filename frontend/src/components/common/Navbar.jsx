@@ -19,14 +19,30 @@ const Navbar = () => {
 
   const primaryLinks = [
     { name: "Home", path: "/" },
-    { name: "Medicines", path: "/medicines" },
-    isFeatureEnabled("about") && { name: "About", path: "/about" },
-    isFeatureEnabled("contact") && { name: "Contact", path: "/contact" },
+    {
+      name: "Medicines",
+      path: "https://medamle.myshopify.com/collections/medicines-otc",
+      external: true,
+    },
+    isFeatureEnabled("about") && {
+      name: "About",
+      path: "https://medamle.myshopify.com/pages/about-us",
+      external: true,
+    },
+    isFeatureEnabled("contact") && {
+      name: "Contact",
+      path: "https://medamle.myshopify.com/pages/contact",
+      external: true,
+    },
   ].filter(Boolean);
 
   const secondaryLinks = [
     { name: "Services", path: "/services" },
-    { name: "Partners", path: "/partners" },
+    {
+      name: "Partners",
+      path: "https://medamle.myshopify.com/pages/partnership",
+      external: true,
+    },
   ];
 
   const handleLanguageChange = (e) => {
@@ -37,7 +53,7 @@ const Navbar = () => {
   };
 
   const renderNavLink = (link, className, onClick) => {
-    if (link.path.startsWith("/#")) {
+    if (link.external) {
       return (
         <a
           key={link.name}

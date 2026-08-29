@@ -8,8 +8,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import About from "../pages/About";
 import Services from "../pages/Services";
-import Contact from "../pages/Contact";
-import Partners from "../pages/Partners";
+// import Contact from "../pages/Contact";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
@@ -41,35 +40,49 @@ import MedicalStoreAnalytics from "../pages/superAdmin/MedicalStoreAnalytics";
 import MedicineRequests from "../pages/medical/MedicineRequests";
 import StorePreview from "../pages/medical/StorePreview";
 import PatientMedicineRequests from "../pages/patient/PatientMedicineRequests";
-import { filterEnabledRoles, isFeatureEnabled } from "../config/features";
+
+import { filterEnabledRoles } from "../config/features";
+
+/**
+ * Redirects the user from a Medample route
+ * to an external website.
+ */
 
 const AppRoutes = () => {
-  const doctorsEnabled = isFeatureEnabled("doctors");
-  const hospitalsEnabled = isFeatureEnabled("hospitals");
-  const sosEnabled = isFeatureEnabled("sos");
-
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* =====================================================
+          PUBLIC ROUTES
+      ====================================================== */}
       <Route element={<PublicLayout />}>
+        {/* Home */}
         <Route path="/" element={<Landing />} />
+
+        {/* Static Pages */}
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/partners" element={<Partners />} />
+        {/* <Route path="/contact" element={<Contact />} /> */}
+
+
+        {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
+        {/* Public Patient Pages */}
         <Route path="/emergency/:patientId" element={<EmergencyProfile />} />
+
         <Route path="/patient-card/:patientId" element={<PatientQrProfile />} />
 
+        {/* Public Medicine Search */}
         <Route path="/medicines" element={<MedicineSearch />} />
       </Route>
 
-      {/* Protected Dashboard Layout */}
+      {/* =====================================================
+          PROTECTED DASHBOARD LAYOUT
+      ====================================================== */}
       <Route
         element={
           <RoleBasedRoute
@@ -85,7 +98,11 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         }
       >
-        {/* Main Dashboards */}
+        {/* ===================================================
+            MAIN DASHBOARDS
+        ==================================================== */}
+
+        {/* Patient Dashboard */}
         <Route
           path="/patient-dashboard"
           element={
@@ -95,6 +112,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Medical Owner Dashboard */}
         <Route
           path="/medical-dashboard"
           element={
@@ -104,6 +122,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Super Admin Dashboard */}
         <Route
           path="/super-admin-dashboard"
           element={
@@ -113,7 +132,11 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Super Admin Pages */}
+        {/* ===================================================
+            SUPER ADMIN PAGES
+        ==================================================== */}
+
+        {/* Approved Users */}
         <Route
           path="/super-admin-dashboard/approved-users"
           element={
@@ -123,6 +146,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* All Users */}
         <Route
           path="/super-admin-dashboard/users"
           element={
@@ -132,6 +156,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Medical Stores Analytics */}
         <Route
           path="/super-admin-dashboard/medical-stores"
           element={
@@ -141,6 +166,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Super Admin Reports */}
         <Route
           path="/super-admin-dashboard/reports"
           element={
@@ -150,7 +176,11 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Patient Pages */}
+        {/* ===================================================
+            PATIENT PAGES
+        ==================================================== */}
+
+        {/* Patient Reports */}
         <Route
           path="/patient-dashboard/reports"
           element={
@@ -160,6 +190,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Patient Medicine Requests */}
         <Route
           path="/patient-dashboard/medicine-requests"
           element={
@@ -169,6 +200,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Patient Profile */}
         <Route
           path="/patient-dashboard/profile"
           element={
@@ -178,10 +210,17 @@ const AppRoutes = () => {
           }
         />
 
-        {/* Doctor Pages */}
-        {/* Disabled: Doctor features hidden */}
+        {/* ===================================================
+            DOCTOR PAGES
+        ==================================================== */}
 
-        {/* Medical Owner Pages */}
+        {/* Doctor features currently disabled */}
+
+        {/* ===================================================
+            MEDICAL OWNER PAGES
+        ==================================================== */}
+
+        {/* Medical Profile */}
         <Route
           path="/medical-dashboard/profile"
           element={
@@ -191,6 +230,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Medical Inventory */}
         <Route
           path="/medical-dashboard/inventory"
           element={
@@ -200,6 +240,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Medicine Requests */}
         <Route
           path="/medical-dashboard/medicine-requests"
           element={
@@ -209,6 +250,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Scan Discount */}
         <Route
           path="/medical-dashboard/scan-discount"
           element={
@@ -218,6 +260,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Scan History */}
         <Route
           path="/medical-dashboard/scan-history"
           element={
@@ -227,6 +270,7 @@ const AppRoutes = () => {
           }
         />
 
+        {/* Store Preview */}
         <Route
           path="/medical-dashboard/store-preview"
           element={
@@ -237,7 +281,9 @@ const AppRoutes = () => {
         />
       </Route>
 
-      {/* Not Found */}
+      {/* =====================================================
+          404 - NOT FOUND
+      ====================================================== */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
