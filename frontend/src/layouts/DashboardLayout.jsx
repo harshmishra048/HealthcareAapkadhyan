@@ -71,14 +71,16 @@ const DashboardLayout = () => {
       ? [
           {
             name: "Find Medicines",
-            path: "/medicines",
-            icon: Search,
+            path: "https://medamle.myshopify.com/collections/medicines-otc",
+          icon: Search,
+            external:true,
           },
-          {
-            name: "Medicine Requests",
-            path: "/patient-dashboard/medicine-requests",
-            icon: Pill,
-          },
+          // {
+          //   name: "Medicine Requests",
+          //   path: "",
+          //   icon: Pill,
+          //   external:true,
+          // },
         ].filter(Boolean)
       : [];
 

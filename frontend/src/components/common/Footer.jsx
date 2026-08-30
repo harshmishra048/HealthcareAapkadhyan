@@ -110,7 +110,7 @@ const Footer = () => {
               <ContactLine icon={<FiPhone />} text="+91 79872 28973" />
               <ContactLine
                 icon={<FiMapPin />}
-                text="Sai-Kripa , Rajendra-Nagar, Lnae No-4, Satna, M.P."
+                text="Sai-Kripa , Rajendra-Nagar, Lane No-4, Satna, M.P."
               />
             </div>
 
