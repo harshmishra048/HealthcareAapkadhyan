@@ -1,6 +1,12 @@
 const User = require("../models/User");
 
-const approvableRoles = ["doctor", "hospitalAdmin", "medicalOwner"];
+// Roles that require Super Admin approval before they can access
+// their respective dashboards.
+//
+// IMPORTANT:
+// labOwner MUST be included here because Lab Vendors register with
+// the role "labOwner".
+const approvableRoles = ["doctor", "hospitalAdmin", "medicalOwner", "labOwner"];
 
 exports.getPendingUsers = async (req, res) => {
   try {
@@ -17,9 +23,11 @@ exports.getPendingUsers = async (req, res) => {
       users: pendingUsers,
     });
   } catch (error) {
+    console.error("Get pending users error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to fetch pending users",
     });
   }
 };
@@ -41,11 +49,12 @@ exports.approveUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Only doctor, hospital admin, or medical owner can be approved",
+          "Only doctor, hospital admin, medical owner, or lab vendor can be approved",
       });
     }
 
     user.isApproved = true;
+
     await user.save();
 
     res.status(200).json({
@@ -61,9 +70,11 @@ exports.approveUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Approve user error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to approve user",
     });
   }
 };
@@ -85,7 +96,7 @@ exports.rejectUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Only doctor, hospital admin, or medical owner can be rejected",
+          "Only doctor, hospital admin, medical owner, or lab vendor can be rejected",
       });
     }
 
@@ -96,9 +107,11 @@ exports.rejectUser = async (req, res) => {
       message: `${user.role} rejected and removed successfully`,
     });
   } catch (error) {
+    console.error("Reject user error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to reject user",
     });
   }
 };
@@ -118,9 +131,11 @@ exports.getApprovedUsers = async (req, res) => {
       users,
     });
   } catch (error) {
+    console.error("Get approved users error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to fetch approved users",
     });
   }
 };
@@ -150,15 +165,34 @@ exports.getAllUsers = async (req, res) => {
     }
 
     if (status === "unverified-email") {
-      query.email = { $exists: true, $ne: "" };
+      query.email = {
+        $exists: true,
+        $ne: "",
+      };
+
       query.isEmailVerified = false;
     }
 
     if (search) {
       query.$or = [
-        { fullName: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
+        {
+          fullName: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
@@ -166,41 +200,74 @@ exports.getAllUsers = async (req, res) => {
       .select("-password -refreshToken")
       .sort({ createdAt: -1 });
 
-    const [totalUsers, totalPatients, totalDoctors, totalHospitals, totalMedicalOwners, pendingApprovals, blockedUsers] =
-      await Promise.all([
-        User.countDocuments({ role: { $ne: "superAdmin" } }),
-        User.countDocuments({ role: "patient" }),
-        User.countDocuments({ role: "doctor" }),
-        User.countDocuments({ role: "hospitalAdmin" }),
-        User.countDocuments({ role: "medicalOwner" }),
-        User.countDocuments({
-          role: { $in: approvableRoles },
-          isApproved: false,
-        }),
-        User.countDocuments({
-          role: { $ne: "superAdmin" },
-          isBlocked: true,
-        }),
-      ]);
+    const [
+      totalUsers,
+      totalPatients,
+      totalDoctors,
+      totalHospitals,
+      totalMedicalOwners,
+      totalLabOwners,
+      pendingApprovals,
+      blockedUsers,
+    ] = await Promise.all([
+      User.countDocuments({
+        role: { $ne: "superAdmin" },
+      }),
+
+      User.countDocuments({
+        role: "patient",
+      }),
+
+      User.countDocuments({
+        role: "doctor",
+      }),
+
+      User.countDocuments({
+        role: "hospitalAdmin",
+      }),
+
+      User.countDocuments({
+        role: "medicalOwner",
+      }),
+
+      User.countDocuments({
+        role: "labOwner",
+      }),
+
+      User.countDocuments({
+        role: { $in: approvableRoles },
+        isApproved: false,
+      }),
+
+      User.countDocuments({
+        role: { $ne: "superAdmin" },
+        isBlocked: true,
+      }),
+    ]);
 
     res.status(200).json({
       success: true,
       count: users.length,
+
       stats: {
         totalUsers,
         totalPatients,
         totalDoctors,
         totalHospitals,
         totalMedicalOwners,
+        totalLabOwners,
         pendingApprovals,
         blockedUsers,
       },
+
       users,
     });
   } catch (error) {
+    console.error("Get all users error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to fetch users",
     });
   }
 };
@@ -239,6 +306,7 @@ exports.updateUserVerification = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User verification updated successfully",
+
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -250,9 +318,11 @@ exports.updateUserVerification = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Update user verification error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to update user verification",
     });
   }
 };
@@ -278,6 +348,7 @@ exports.blockUser = async (req, res) => {
     }
 
     user.isBlocked = true;
+
     await user.save();
 
     res.status(200).json({
@@ -285,9 +356,11 @@ exports.blockUser = async (req, res) => {
       message: "User blocked successfully",
     });
   } catch (error) {
+    console.error("Block user error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to block user",
     });
   }
 };
@@ -306,6 +379,7 @@ exports.unblockUser = async (req, res) => {
     }
 
     user.isBlocked = false;
+
     await user.save();
 
     res.status(200).json({
@@ -313,9 +387,11 @@ exports.unblockUser = async (req, res) => {
       message: "User unblocked successfully",
     });
   } catch (error) {
+    console.error("Unblock user error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to unblock user",
     });
   }
 };
@@ -347,65 +423,90 @@ exports.deleteUser = async (req, res) => {
       message: "User deleted successfully",
     });
   } catch (error) {
+    console.error("Delete user error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to delete user",
     });
   }
 };
 
 exports.getAnalytics = async (req, res) => {
   try {
-    const totalPatients = await User.countDocuments({ role: "patient" });
+    const [
+      totalPatients,
+      totalDoctors,
+      totalHospitals,
+      totalMedicalOwners,
+      totalLabOwners,
+      pendingApprovals,
+      blockedUsers,
+      approvedUsers,
+      totalUsers,
+    ] = await Promise.all([
+      User.countDocuments({
+        role: "patient",
+      }),
 
-    const totalDoctors = await User.countDocuments({
-      role: "doctor",
-      isApproved: true,
-    });
+      User.countDocuments({
+        role: "doctor",
+        isApproved: true,
+      }),
 
-    const totalHospitals = await User.countDocuments({
-      role: "hospitalAdmin",
-      isApproved: true,
-    });
+      User.countDocuments({
+        role: "hospitalAdmin",
+        isApproved: true,
+      }),
 
-    const totalMedicalOwners = await User.countDocuments({
-      role: "medicalOwner",
-      isApproved: true,
-    });
+      User.countDocuments({
+        role: "medicalOwner",
+        isApproved: true,
+      }),
 
-    const pendingApprovals = await User.countDocuments({
-      role: { $in: approvableRoles },
-      isApproved: false,
-    });
+      User.countDocuments({
+        role: "labOwner",
+        isApproved: true,
+      }),
 
-    const blockedUsers = await User.countDocuments({
-      isBlocked: true,
-    });
+      User.countDocuments({
+        role: { $in: approvableRoles },
+        isApproved: false,
+      }),
 
-    const approvedUsers = await User.countDocuments({
-      role: { $in: approvableRoles },
-      isApproved: true,
-    });
+      User.countDocuments({
+        isBlocked: true,
+      }),
 
-    const totalUsers = await User.countDocuments();
+      User.countDocuments({
+        role: { $in: approvableRoles },
+        isApproved: true,
+      }),
+
+      User.countDocuments(),
+    ]);
 
     res.status(200).json({
       success: true,
+
       analytics: {
         totalUsers,
         totalPatients,
         totalDoctors,
         totalHospitals,
         totalMedicalOwners,
+        totalLabOwners,
         pendingApprovals,
         blockedUsers,
         approvedUsers,
       },
     });
   } catch (error) {
+    console.error("Get analytics error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to fetch analytics",
     });
   }
 };
@@ -413,7 +514,9 @@ exports.getAnalytics = async (req, res) => {
 exports.getRecentActivity = async (req, res) => {
   try {
     const latestUsers = await User.find({
-      role: { $in: ["doctor", "hospitalAdmin", "medicalOwner", "patient"] },
+      role: {
+        $in: ["doctor", "hospitalAdmin", "medicalOwner", "labOwner", "patient"],
+      },
     })
       .select("fullName email role isApproved isBlocked createdAt updatedAt")
       .sort({ updatedAt: -1 })
@@ -451,9 +554,11 @@ exports.getRecentActivity = async (req, res) => {
       activities,
     });
   } catch (error) {
+    console.error("Get recent activity error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to fetch recent activity",
     });
   }
 };
