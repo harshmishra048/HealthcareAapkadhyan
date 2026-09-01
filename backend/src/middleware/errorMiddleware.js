@@ -1,26 +1,15 @@
 const errorMiddleware = (err, req, res, next) => {
-  console.error("========================================");
-  console.error("BACKEND ERROR");
-  console.error("========================================");
-  console.error("Message:", err.message);
-  console.error("Name:", err.name);
-  console.error("Stack:", err.stack);
-  console.error("========================================");
+  console.error(err);
 
   const statusCode =
     res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Server error",
-
-    // TEMPORARY DEBUG INFORMATION
-    debug: {
-      name: err.name,
-      message: err.message,
-      path: req.originalUrl,
-      method: req.method,
-    },
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Server error"
+        : err.message || "Server error",
   });
 };
 
