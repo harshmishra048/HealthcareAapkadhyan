@@ -20,7 +20,12 @@ const {
 } = require("../utils/emailTemplates");
 const { isRoleEnabled } = require("../config/features");
 
-const approvalRequiredRoles = ["doctor", "hospitalAdmin", "medicalOwner"];
+const approvalRequiredRoles = [
+  "doctor",
+  "hospitalAdmin",
+  "medicalOwner",
+  "labOwner",
+];
 const allowedRegistrationRoles = ["patient", ...approvalRequiredRoles];
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -388,7 +393,12 @@ exports.refreshToken = asyncHandler(async (req, res) => {
   const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
   const user = await User.findById(decoded.id).select("+refreshToken");
 
-  if (!user || user.refreshToken !== token || user.isBlocked || !user.isApproved) {
+  if (
+    !user ||
+    user.refreshToken !== token ||
+    user.isBlocked ||
+    !user.isApproved
+  ) {
     return res.status(401).json({
       success: false,
       message: "Invalid refresh token",
@@ -414,7 +424,9 @@ exports.logout = asyncHandler(async (req, res) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      await User.findByIdAndUpdate(decoded.id, { $unset: { refreshToken: "" } });
+      await User.findByIdAndUpdate(decoded.id, {
+        $unset: { refreshToken: "" },
+      });
     } catch (error) {
       // Clearing the browser cookie is enough if the token is already invalid.
     }

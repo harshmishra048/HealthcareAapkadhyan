@@ -27,6 +27,7 @@ const medicalScanRoutes = require("./src/routes/medicalScanRoutes");
 const superAdminMedicalRoutes = require("./src/routes/superAdminMedicalRoutes");
 const medicineRequestRoutes = require("./src/routes/medicineRequestRoutes");
 const medicalOwnerDashboardRoutes = require("./src/routes/medicalOwnerDashboardRoutes");
+const labRoutes = require("./src/routes/labRoutes");
 const feedbackRoutes = require("./src/routes/feedbackRoutes");
 const partnerInquiryRoutes = require("./src/routes/partnerInquiryRoutes");
 const nearbyHealthcareRoutes = require("./src/routes/nearbyHealthcareRoutes");
@@ -36,15 +37,20 @@ const app = express();
 // ==========================
 // ALLOWED ORIGINS
 // ==========================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://medample.vercel.app",
-  ...(process.env.CLIENT_URL || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean),
-];
+const allowedOrigins = Array.from(
+  new Set([
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://medample.vercel.app",
+    "https://www.medample.vercel.app",
+    "https://healthcareaapkadhyan.onrender.com",
+    "https://www.healthcareaapkadhyan.onrender.com",
+    ...(process.env.CLIENT_URL || "")
+      .split(",")
+      .map((origin) => origin.trim().replace(/\/$/, ""))
+      .filter(Boolean),
+  ]),
+);
 
 console.log("Allowed CORS Origins:", allowedOrigins);
 
@@ -129,7 +135,11 @@ app.use(
   requireFeature("doctors", "Appointments"),
   appointmentRoutes,
 );
-app.use("/api/hospitals", requireFeature("hospitals", "Hospitals"), hospitalRoutes);
+app.use(
+  "/api/hospitals",
+  requireFeature("hospitals", "Hospitals"),
+  hospitalRoutes,
+);
 app.use("/api/patients", patientRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/sos", requireFeature("sos", "SOS"), sosRoutes);
@@ -140,6 +150,7 @@ app.use("/api/medical-scans", medicalScanRoutes);
 app.use("/api/super-admin-medical", superAdminMedicalRoutes);
 app.use("/api/medicine-requests", medicineRequestRoutes);
 app.use("/api/medical-owner-dashboard", medicalOwnerDashboardRoutes);
+app.use("/api/labs", labRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/partner-inquiries", partnerInquiryRoutes);
 app.use(

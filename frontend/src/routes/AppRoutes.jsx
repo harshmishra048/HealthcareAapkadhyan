@@ -40,6 +40,11 @@ import MedicalStoreAnalytics from "../pages/superAdmin/MedicalStoreAnalytics";
 import MedicineRequests from "../pages/medical/MedicineRequests";
 import StorePreview from "../pages/medical/StorePreview";
 import PatientMedicineRequests from "../pages/patient/PatientMedicineRequests";
+import LabDashboard from "../pages/LabDashboard";
+import LabProfile from "../pages/lab/LabProfile";
+import LabPackages from "../pages/lab/LabPackages";
+import LabAppointments from "../pages/lab/LabAppointments";
+import PatientLabServices from "../pages/patient/PatientLabServices";
 
 import { filterEnabledRoles } from "../config/features";
 
@@ -62,7 +67,6 @@ const AppRoutes = () => {
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
         {/* <Route path="/contact" element={<Contact />} /> */}
-
 
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
@@ -91,6 +95,7 @@ const AppRoutes = () => {
               "doctor",
               "hospitalAdmin",
               "medicalOwner",
+              "labOwner",
               "superAdmin",
             ])}
           >
@@ -210,6 +215,15 @@ const AppRoutes = () => {
           }
         />
 
+        <Route
+          path="/patient-dashboard/lab-tests"
+          element={
+            <RoleBasedRoute allowedRoles={["patient"]}>
+              <PatientLabServices />
+            </RoleBasedRoute>
+          }
+        />
+
         {/* ===================================================
             DOCTOR PAGES
         ==================================================== */}
@@ -276,6 +290,46 @@ const AppRoutes = () => {
           element={
             <RoleBasedRoute allowedRoles={["medicalOwner"]}>
               <StorePreview />
+            </RoleBasedRoute>
+          }
+        />
+
+        {/* ===================================================
+            LAB OWNER PAGES
+        ==================================================== */}
+
+        <Route
+          path="/lab-dashboard"
+          element={
+            <RoleBasedRoute allowedRoles={["labOwner"]}>
+              <LabDashboard />
+            </RoleBasedRoute>
+          }
+        />
+
+        <Route
+          path="/lab-dashboard/profile"
+          element={
+            <RoleBasedRoute allowedRoles={["labOwner"]}>
+              <LabProfile />
+            </RoleBasedRoute>
+          }
+        />
+
+        <Route
+          path="/lab-dashboard/packages"
+          element={
+            <RoleBasedRoute allowedRoles={["labOwner"]}>
+              <LabPackages />
+            </RoleBasedRoute>
+          }
+        />
+
+        <Route
+          path="/lab-dashboard/appointments"
+          element={
+            <RoleBasedRoute allowedRoles={["labOwner"]}>
+              <LabAppointments />
             </RoleBasedRoute>
           }
         />

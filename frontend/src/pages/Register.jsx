@@ -13,6 +13,7 @@ import {
   Building2,
   Store,
   CheckCircle,
+  FlaskConical,
 } from "lucide-react";
 import API from "../api/axios";
 import { BRAND_LOGO_URL, BRAND_NAME } from "../constants/brand";
@@ -51,11 +52,21 @@ const roles = [
     icon: Store,
     desc: "Manage medicines, inventory and QR discounts",
   },
+  {
+    label: "Lab Vendor",
+    value: "labOwner",
+    feature: "labs",
+    icon: FlaskConical,
+    desc: "Manage lab profile, packages and diagnostic appointments",
+  },
 ];
 
-const approvalRequiredRoles = ["doctor", "hospitalAdmin", "medicalOwner"].filter(
-  isRoleEnabled,
-);
+const approvalRequiredRoles = [
+  "doctor",
+  "hospitalAdmin",
+  "medicalOwner",
+  "labOwner",
+].filter(isRoleEnabled);
 
 const Register = () => {
   const { googleLogin } = useAuth();
@@ -84,6 +95,8 @@ const Register = () => {
     isFeatureEnabled("hospitals") &&
       "Hospital admins require verification before approval",
     "Medical owners require verification before managing inventory",
+    isFeatureEnabled("labs") &&
+      "Lab vendors require verification before managing diagnostics",
   ].filter(Boolean);
 
   const handleChange = (e) => {

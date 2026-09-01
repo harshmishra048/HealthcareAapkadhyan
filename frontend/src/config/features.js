@@ -11,12 +11,14 @@ const readBooleanFlag = (key, fallback) => {
 export const FEATURE_FLAGS = {
   doctors: readBooleanFlag("VITE_FEATURE_DOCTORS", false),
   hospitals: readBooleanFlag("VITE_FEATURE_HOSPITALS", false),
+  labs: readBooleanFlag("VITE_FEATURE_LABS", true),
   sos: readBooleanFlag("VITE_FEATURE_SOS", false),
 };
 
 const roleFeatureMap = {
   doctor: "doctors",
   hospitalAdmin: "hospitals",
+  labOwner: "labs",
 };
 
 export const isFeatureEnabled = (feature) => FEATURE_FLAGS[feature] !== false;
@@ -42,6 +44,8 @@ export const getDashboardPath = (role) => {
       return "/hospital-dashboard";
     case "medicalOwner":
       return "/medical-dashboard";
+    case "labOwner":
+      return "/lab-dashboard";
     case "superAdmin":
       return "/super-admin-dashboard";
     default:

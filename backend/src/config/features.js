@@ -9,12 +9,14 @@ const readBooleanFlag = (value, fallback) => {
 const features = {
   doctors: readBooleanFlag(process.env.FEATURE_DOCTORS, false),
   hospitals: readBooleanFlag(process.env.FEATURE_HOSPITALS, false),
+  labs: readBooleanFlag(process.env.FEATURE_LABS, true),
   sos: readBooleanFlag(process.env.FEATURE_SOS, false),
 };
 
 const roleFeatureMap = {
   doctor: "doctors",
   hospitalAdmin: "hospitals",
+  labOwner: "labs",
 };
 
 const isFeatureEnabled = (feature) => features[feature] !== false;

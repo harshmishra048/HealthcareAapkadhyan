@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
         "doctor",
         "hospitalAdmin",
         "medicalOwner",
+        "labOwner",
         "superAdmin",
       ],
       default: "patient",

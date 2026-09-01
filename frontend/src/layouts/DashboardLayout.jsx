@@ -18,6 +18,7 @@ import {
   Inbox,
   Pill,
   Search,
+  FlaskConical,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -70,17 +71,16 @@ const DashboardLayout = () => {
     user?.role === "patient"
       ? [
           {
+            name: "Lab Tests",
+            path: `${dashboardPath}/lab-tests`,
+            icon: FlaskConical,
+          },
+          {
             name: "Find Medicines",
             path: "https://medamle.myshopify.com/collections/medicines-otc",
           icon: Search,
             external:true,
           },
-          // {
-          //   name: "Medicine Requests",
-          //   path: "",
-          //   icon: Pill,
-          //   external:true,
-          // },
         ].filter(Boolean)
       : [];
 
@@ -120,6 +120,29 @@ const DashboardLayout = () => {
       name: "Scan History",
       path: "/medical-dashboard/scan-history",
       icon: History,
+    },
+  ];
+
+  const labOwnerLinks = [
+    {
+      name: "Dashboard",
+      path: "/lab-dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "Lab Profile",
+      path: "/lab-dashboard/profile",
+      icon: Store,
+    },
+    {
+      name: "Packages",
+      path: "/lab-dashboard/packages",
+      icon: FlaskConical,
+    },
+    {
+      name: "Appointments",
+      path: "/lab-dashboard/appointments",
+      icon: CalendarCheck,
     },
   ];
 
@@ -163,7 +186,9 @@ const DashboardLayout = () => {
       ? superAdminLinks
       : user?.role === "medicalOwner"
         ? medicalOwnerLinks
-        : [...normalLinks, ...patientExtraLinks];
+        : user?.role === "labOwner"
+          ? labOwnerLinks
+          : [...normalLinks, ...patientExtraLinks];
 
   const fetchPendingMedicineRequests = async () => {
     try {
@@ -391,7 +416,9 @@ const DashboardLayout = () => {
                       ? "Manage your healthcare activities, medicine requests, and reports securely."
                       : user?.role === "medicalOwner"
                         ? "Manage medicines, inventory, QR discounts, and monthly customer interactions."
-                        : "Manage your healthcare activities securely."}
+                        : user?.role === "labOwner"
+                          ? "Manage laboratory profiles, test packages, and patient appointments end-to-end."
+                          : "Manage your healthcare activities securely."}
               </p>
             </div>
 
