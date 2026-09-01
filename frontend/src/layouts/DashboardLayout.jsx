@@ -1,4 +1,5 @@
-import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
+import { Link, Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   CalendarCheck,
@@ -16,9 +17,9 @@ import {
   QrCode,
   History,
   Inbox,
-  Pill,
   Search,
   FlaskConical,
+  Home,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -39,15 +40,18 @@ const DashboardLayout = () => {
     criticalCount: 0,
     latest: null,
   });
-
-  const doctorsEnabled = isFeatureEnabled("doctors");
-  const hospitalsEnabled = isFeatureEnabled("hospitals");
   const sosEnabled = isFeatureEnabled("sos");
   const dashboardPath = getDashboardPath(user?.role);
 
   const canMonitorSos =
     sosEnabled &&
     (user?.role === "superAdmin" || user?.role === "hospitalAdmin");
+
+  const homeLink = {
+    name: "Home",
+    path: "/",
+    icon: Home,
+  };
 
   const normalLinks = [
     {
@@ -74,6 +78,11 @@ const DashboardLayout = () => {
             name: "Lab Tests",
             path: `${dashboardPath}/lab-tests`,
             icon: FlaskConical,
+          },
+          {
+            name: "Lab Appointments",
+            path: `${dashboardPath}/lab-appointments`,
+            icon: CalendarCheck,
           },
           {
             name: "Find Medicines",
@@ -175,6 +184,11 @@ const DashboardLayout = () => {
       icon: Store,
     },
     {
+      name: "Labs",
+      path: "/super-admin-dashboard/labs",
+      icon: FlaskConical,
+    },
+    {
       name: "Reports",
       path: "/super-admin-dashboard/reports",
       icon: FileText,
@@ -183,12 +197,12 @@ const DashboardLayout = () => {
 
   const links =
     user?.role === "superAdmin"
-      ? superAdminLinks
+      ? [homeLink, ...superAdminLinks]
       : user?.role === "medicalOwner"
-        ? medicalOwnerLinks
+        ? [homeLink, ...medicalOwnerLinks]
         : user?.role === "labOwner"
-          ? labOwnerLinks
-          : [...normalLinks, ...patientExtraLinks];
+          ? [homeLink, ...labOwnerLinks]
+          : [homeLink, ...normalLinks, ...patientExtraLinks];
 
   const fetchPendingMedicineRequests = async () => {
     try {
@@ -197,7 +211,7 @@ const DashboardLayout = () => {
       const res = await API.get("/medicine-requests/my-store/summary");
 
       setPendingMedicineRequests(res.data.summary?.pending || 0);
-    } catch (error) {
+    } catch {
       setPendingMedicineRequests(0);
       console.log("Pending medicine request count fetch failed");
     }
@@ -222,7 +236,7 @@ const DashboardLayout = () => {
         criticalCount: criticalRequests.length,
         latest: newRequests[0] || criticalRequests[0] || null,
       });
-    } catch (error) {
+    } catch {
       console.log("SOS alert fetch failed");
     }
   };
@@ -268,7 +282,7 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-emerald-50">
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/60 bg-white/80 px-4 py-4 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center gap-3 font-bold text-slate-900">
+        <Link to="/" className="flex items-center gap-3 font-bold text-slate-900">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
             <img
               src={BRAND_LOGO_URL}
@@ -279,7 +293,7 @@ const DashboardLayout = () => {
           <span className="notranslate" translate="no">
             {BRAND_NAME}
           </span>
-        </div>
+        </Link>
 
         <button
           type="button"
@@ -295,7 +309,7 @@ const DashboardLayout = () => {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-6 flex shrink-0 items-center gap-3">
+        <Link to="/" onClick={() => setOpen(false)} className="mb-6 flex shrink-0 items-center gap-3">
           <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-sm">
             <img
               src={BRAND_LOGO_URL}
@@ -315,7 +329,7 @@ const DashboardLayout = () => {
               {user?.role} panel
             </p>
           </div>
-        </div>
+        </Link>
 
         {canMonitorSos && sosAlert.newCount > 0 && (
           <div className="mb-4 shrink-0 rounded-3xl border border-red-100 bg-red-50 p-4">

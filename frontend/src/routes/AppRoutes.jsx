@@ -45,6 +45,9 @@ import LabProfile from "../pages/lab/LabProfile";
 import LabPackages from "../pages/lab/LabPackages";
 import LabAppointments from "../pages/lab/LabAppointments";
 import PatientLabServices from "../pages/patient/PatientLabServices";
+import PatientLabAppointments from "../pages/patient/PatientLabAppointments";
+import LabPackageMarketplace from "../pages/LabPackageMarketplace";
+import SuperAdminLabs from "../pages/superAdmin/SuperAdminLabs";
 
 import { filterEnabledRoles } from "../config/features";
 
@@ -82,6 +85,7 @@ const AppRoutes = () => {
 
         {/* Public Medicine Search */}
         <Route path="/medicines" element={<MedicineSearch />} />
+        <Route path="/lab-packages" element={<LabPackageMarketplace />} />
       </Route>
 
       {/* =====================================================
@@ -181,6 +185,15 @@ const AppRoutes = () => {
           }
         />
 
+        <Route
+          path="/super-admin-dashboard/labs"
+          element={
+            <RoleBasedRoute allowedRoles={["superAdmin"]}>
+              <SuperAdminLabs />
+            </RoleBasedRoute>
+          }
+        />
+
         {/* ===================================================
             PATIENT PAGES
         ==================================================== */}
@@ -220,6 +233,15 @@ const AppRoutes = () => {
           element={
             <RoleBasedRoute allowedRoles={["patient"]}>
               <PatientLabServices />
+            </RoleBasedRoute>
+          }
+        />
+
+        <Route
+          path="/patient-dashboard/lab-appointments"
+          element={
+            <RoleBasedRoute allowedRoles={["patient"]}>
+              <PatientLabAppointments />
             </RoleBasedRoute>
           }
         />

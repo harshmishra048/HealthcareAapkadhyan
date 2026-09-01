@@ -24,6 +24,10 @@ const Navbar = () => {
       path: "https://medamle.myshopify.com/collections/medicines-otc",
       external: true,
     },
+    isFeatureEnabled("labs") && {
+      name: "Lab Packages",
+      path: "/lab-packages",
+    },
     isFeatureEnabled("about") && {
       name: "About",
       path: "https://medamle.myshopify.com/pages/about-us",

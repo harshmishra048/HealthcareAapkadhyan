@@ -21,6 +21,10 @@ const footerColumns = [
         external: true,
       },
       {
+        label: "Lab Packages",
+        path: "/lab-packages",
+      },
+      {
         label: "Our Services",
         path: "https://medamle.myshopify.com/pages/our-services",
         external: true,
@@ -213,17 +217,6 @@ const ContactLine = ({ icon, text }) => {
   );
 };
 
-const TrustCard = ({ icon, title, text }) => {
-  return (
-    <div className="rounded-3xl bg-slate-950/60 p-5">
-      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-        {icon}
-      </div>
-      <h3 className="font-black text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-400">{text}</p>
-    </div>
-  );
-};
 
 const SocialLink = ({ icon, label }) => {
   return (
